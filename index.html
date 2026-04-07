@@ -266,14 +266,14 @@ const DATA = {
   },
 
   alerts: [
-    { level:'WARNING',  message:'April 6 missed — had homework, no studying done. Carry-forward items added to Apr 7–9.', action:'Chemistry Ch 1 and Int Math Mensuration spread across Tue–Thu. Eco started today (Apr 7).' },
-    { level:'REMINDER', message:'Int Math Mensuration test — Friday Apr 10 (3 days). 2–3 hrs revision total needed (A-grade subject).', action:'Full 2.5 hr session on Thursday Apr 9. Nothing extra needed.' },
+    { level:'WARNING',  message:'April 6 missed — had homework, no studying done. Eco carried to Wed 8 + Thu 9.', action:'Economics Ch 20 on Wed 8 (1.25 hrs) + Thu 9 (2 hrs). Int Math Coord Geometry on Thu 9 (1.5 hrs).' },
+    { level:'REMINDER', message:'Int Math Coordinate Geometry test — Friday Apr 10. Only 1.5 hrs needed (A-grade). Full session Thu Apr 9.', action:'Thu 9: 17:00–18:30 Int Math. Then 2 hrs Economics Ch 20 in the evening.' },
   ],
 
   upcomingTests: [
-    { date:'2026-04-10', subject:'Int Math',  topic:'Mensuration',             daysAway:3,  readyStatus:'IN PROGRESS' },
+    { date:'2026-04-10', subject:'Int Math',  topic:'Coordinate Geometry',     daysAway:3,  readyStatus:'NOT STARTED' },
     { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:6,  readyStatus:'NOT STARTED' },
-    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 & 21',              daysAway:8,  readyStatus:'IN PROGRESS' },
+    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',              daysAway:8,  readyStatus:'IN PROGRESS' },
     { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:8,  readyStatus:'NOT STARTED' },
     { date:'2026-04-16', subject:'Add Math',  topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED' },
     { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:10, readyStatus:'NOT STARTED' },
@@ -285,34 +285,38 @@ const DATA = {
   days: {
     '2026-04-06': { dayOfWeek:'Monday',    status:'missed', freeWindows:['21:15–22:30 (1.25 hrs)'], planned:[], completed:[], carriedForward:['Int Math: Mensuration formulas review','Chemistry: Ch 1 States of Matter'], note:'Had homework. No studying done.', behindAlert:true },
 
-    '2026-04-07': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+    '2026-04-07': { dayOfWeek:'Tuesday',   status:'partial', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
       planned:[
         '16:00–17:00 — English Lit: A Midsummer Night\'s Dream — key scenes, characters, quotes 📚🔴',
-        '17:00–18:00 — Economics: Ch 20 & 21 — key terms, definitions, demand/supply diagrams ⚠️🔴',
         '18:00–19:00 — Homework',
-        '21:15–21:45 — Online meeting',
-        '21:45–22:30 — Homework',
-      ], completed:[], note:'Int Math saved for Thursday (2–3 hrs intensive). Eco + Eng Lit focus today.' },
+        '21:15–22:30 — Homework',
+      ], completed:[
+        '16:00–17:00 — English Lit: A Midsummer Night\'s Dream — key scenes, characters, quotes 📚🔴',
+        '18:00–19:00 — Homework',
+        '21:15–22:30 — Homework',
+      ], carriedForward:['Economics: Ch 20 — key terms + definitions (pushed to Wed + Thu)'],
+      note:'English Lit ✅  Homework ✅  Eco skipped → Wed/Thu. Meeting postponed.' },
 
     '2026-04-08': { dayOfWeek:'Wednesday', status:'upcoming', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
       planned:[
-        '17:45–18:30 — Economics: Ch 20 & 21 — detailed notes, 8-mark essay structure ⚠️🔴',
+        '17:45–18:30 — Economics: Ch 20 — key terms, definitions, diagrams (carried from Tue) ⚠️🔴',
         '19:15–19:45 — Physics: Ch 7 Light — reflection + refraction overview 📚🟡',
         '21:15–22:00 — Homework',
-        '22:00–22:30 — Economics: Key definitions flash review ⚠️🔴',
-      ], completed:[], note:'Eco + Physics focus. Int Math on Thursday.' },
+        '22:00–22:30 — Economics: Ch 20 — key definitions flash review ⚠️🔴',
+      ], completed:[], note:'Eco Ch 20 only (test scope reduced). Int Math on Thursday.' },
 
     '2026-04-09': { dayOfWeek:'Thursday',  status:'upcoming', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
       planned:[
         '16:00–17:00 — Homework',
-        '17:00–19:30 — Int Math: Mensuration — 2.5 hr full session: formulas, worked examples, past paper timed ⚠️ TEST TOMORROW',
-        '20:15–21:15 — Economics: Ch 20 & 21 — essay plans + key diagrams ⚠️🔴',
+        '17:00–18:30 — Int Math: Coordinate Geometry — 1.5 hr session: straight lines, distance, midpoint, gradient, past paper ⚠️ TEST TOMORROW',
+        '18:30–19:30 — Economics: Ch 20 — essay plans + 8-mark structure ⚠️🔴',
+        '20:15–21:15 — Economics: Ch 20 — timed past paper questions ⚠️🔴',
         '21:15–22:30 — Add Math: Functions + quadratics — exam prep 📚🔴',
-      ], completed:[], note:'Int Math crushed in one big block. Eco top-up + Add Math exam prep in the evening.' },
+      ], completed:[], note:'Int Math only 1.5 hrs (Coord Geo). 2 hrs Eco from saved time.' },
 
-    '2026-04-10': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Int Math — Mensuration', freeWindows:['20:00–22:30 (2.5 hrs — after dinner)'],
+    '2026-04-10': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Int Math — Coordinate Geometry', freeWindows:['20:00–22:30 (2.5 hrs — after dinner)'],
       planned:[
-        'Morning — TEST: Int Math Mensuration',
+        'Morning — TEST: Int Math Coordinate Geometry',
         '20:00–21:00 — Chemistry: Separation techniques — distillation, filtration, chromatography ⚠️',
         '21:00–22:00 — Chemistry: Redox — OIL RIG, oxidation states, worked examples ⚠️',
         '22:00–22:30 — Homework',
@@ -588,9 +592,9 @@ function detectSubject(text) {
 const STUDY_TARGETS = {
   lastUpdated: '2026-04-07',
   tests: [
-    { id:'intmath-mensuration',     subject:'Int Math',    topic:'Mensuration',                    dateLabel:'Fri 10 Apr', date:'2026-04-10', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
+    { id:'intmath-mensuration',     subject:'Int Math',    topic:'Coordinate Geometry',            dateLabel:'Fri 10 Apr', date:'2026-04-10', grade:'A',   targetHrs:1.5, completedHrs:0,  sessions:[] },
     { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
-    { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 & 21',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:4,   completedHrs:0,  sessions:[] },
+    { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 only',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'french-rw',               subject:'French',      topic:'Reading & Writing',              dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'B',   targetHrs:2.5, completedHrs:0,  sessions:[] },
     { id:'addmath-test',            subject:'Add Math',    topic:'Full syllabus',                  dateLabel:'Thu 16 Apr', date:'2026-04-16', grade:'D',   targetHrs:4,   completedHrs:0,  sessions:[] },
     { id:'biology-test',            subject:'Biology',     topic:'Full syllabus',                  dateLabel:'Fri 17 Apr', date:'2026-04-17', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
@@ -601,7 +605,7 @@ const STUDY_TARGETS = {
   exams: [
     { id:'french-speaking-exam',    subject:'French Speaking',  topic:'Oral — all 5 topic areas',              dateLabel:'Apr 29–30', date:'2026-04-29', grade:'B',   targetHrs:5,  completedHrs:0, sessions:[] },
     { id:'english-language-exam',   subject:'English Language', topic:'P1 Reading + P2 Writing',               dateLabel:'May 6+12',  date:'2026-05-06', grade:'C',   targetHrs:6,  completedHrs:0, sessions:[] },
-    { id:'english-lit-exam',        subject:'English Lit',      topic:'Drama + Poetry + Prose',                dateLabel:'May 6+11',  date:'2026-05-06', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },
+    { id:'english-lit-exam',        subject:'English Lit',      topic:'Drama + Poetry + Prose',                dateLabel:'May 6+11',  date:'2026-05-06', grade:'D',   targetHrs:10, completedHrs:1, sessions:[{date:'Apr 7', hrs:1, note:'A Midsummer Night\'s Dream — key scenes, characters, quotes'}] },
     { id:'addmath-exam',            subject:'Add Math',         topic:'P1 (No Calc) + P2 (With Calc)',         dateLabel:'May 6+11',  date:'2026-05-06', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },
     { id:'intmath-exam',            subject:'Int Math',         topic:'P2 (No Calc) + P4 (Calc) + P6 (Inv.)', dateLabel:'May 7+18',  date:'2026-05-07', grade:'A',   targetHrs:5,  completedHrs:0, sessions:[] },
     { id:'economics-exam',          subject:'Economics',        topic:'P1 MCQ + P2 Structured Questions',      dateLabel:'May 8',     date:'2026-05-08', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },

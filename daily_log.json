@@ -69,17 +69,20 @@
 
     "2026-04-07": {
       "dayOfWeek": "Tuesday",
-      "status": "upcoming",
+      "status": "partial",
       "freeWindows": ["16:00–19:00 (3 hrs)", "21:15–22:30 (1.25 hrs — after travel home)"],
       "planned": [
         "16:00–17:00 — English Lit: Key scenes + characters + quotes — A Midsummer Night's Dream 📚🔴",
-        "17:00–18:00 — Economics: Ch 20 & 21 — key terms, definitions, demand/supply diagrams ⚠️🔴",
         "18:00–19:00 — Homework",
-        "21:15–21:45 — Online meeting (30 min)",
-        "21:45–22:30 — Homework"
+        "21:15–22:30 — Homework"
       ],
-      "completed": [],
-      "note": "Int Math saved for Thursday (2–3 hrs intensive). Eco + Eng Lit focus today."
+      "completed": [
+        "16:00–17:00 — English Lit: Key scenes + characters + quotes — A Midsummer Night's Dream 📚🔴",
+        "18:00–19:00 — Homework",
+        "21:15–22:30 — Homework"
+      ],
+      "carriedForward": ["Economics: Ch 20 — key terms + definitions (pushed to Wed + Thu)"],
+      "note": "English Lit ✅ Homework ✅ Eco skipped → carried to Wed/Thu. Meeting postponed."
     },
 
     "2026-04-08": {
@@ -87,13 +90,13 @@
       "status": "upcoming",
       "freeWindows": ["17:45–18:30 (45 min)", "19:15–19:45 (30 min)", "21:15–22:30 (1.25 hrs)"],
       "planned": [
-        "17:45–18:30 — Economics: Ch 20 & 21 — detailed notes, 8-mark essay structure ⚠️🔴",
+        "17:45–18:30 — Economics: Ch 20 — key terms, definitions, diagrams (carried from Tue) ⚠️🔴",
         "19:15–19:45 — Physics: Ch 7 Light — reflection + refraction overview 📚🟡",
         "21:15–22:00 — Homework",
-        "22:00–22:30 — Economics: Key definitions flash review ⚠️🔴"
+        "22:00–22:30 — Economics: Ch 20 — key definitions flash review ⚠️🔴"
       ],
       "completed": [],
-      "note": "Eco + Physics focus. Int Math on Thursday."
+      "note": "Eco Ch 20 only (test scope reduced). Int Math on Thursday."
     },
 
     "2026-04-09": {
@@ -102,22 +105,22 @@
       "freeWindows": ["16:00–19:30 (3.5 hrs)", "20:15–22:30 (2.25 hrs)"],
       "planned": [
         "16:00–17:00 — Homework",
-        "17:00–19:30 — Int Math: Mensuration — full 2.5 hr block: formulas, worked examples, past paper timed ⚠️ TEST TOMORROW",
-        "20:15–21:15 — Economics: Ch 20 & 21 — essay plans + key diagrams top-up ⚠️🔴",
+        "17:00–18:30 — Int Math: Coordinate Geometry — 1.5 hr session: straight lines, distance, midpoint, gradient, past paper ⚠️ TEST TOMORROW",
+        "18:30–19:30 — Economics: Ch 20 — essay plans + 8-mark structure ⚠️🔴",
+        "20:15–21:15 — Economics: Ch 20 — timed past paper questions ⚠️🔴",
         "21:15–22:30 — Add Math: Functions + quadratics — exam prep 📚🔴"
       ],
       "completed": [],
-      "note": "Int Math crushed in one big session. Eco + Add Math in the evening."
+      "note": "Int Math only 1.5 hrs (Coord Geometry). 2 hrs Eco frees up from the saved time."
     },
 
     "2026-04-10": {
       "dayOfWeek": "Friday",
       "status": "upcoming",
-      "examOrTest": "TEST: Int Math — Mensuration",
-      "tuition": ["Phys/Chem 16:15–19:00", "Dinner 19:00–19:45"],
-      "freeWindows": ["19:45–22:30 (2.75 hrs)"],
+      "examOrTest": "TEST: Int Math — Coordinate Geometry",
+      "freeWindows": ["20:00–22:30 (2.5 hrs — after dinner)"],
       "planned": [
-        "Morning — TEST: Int Math Mensuration",
+        "Morning — TEST: Int Math Coordinate Geometry",
         "19:45–20:45 — Chemistry: Separation techniques — past paper questions ⚠️",
         "20:45–21:45 — Homework",
         "21:45–22:30 — Chemistry: Redox reactions — practice problems ⚠️"

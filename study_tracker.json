@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-07",
+  "lastUpdated": "2026-04-07 (evening)",
   "note": "Tell Claude each day what you completed — hours get updated here and in planner.html automatically.",
 
   "schedulingRules": {
@@ -12,15 +12,15 @@
     {
       "id":            "intmath-mensuration",
       "subject":       "Int Math",
-      "topic":         "Mensuration",
+      "topic":         "Coordinate Geometry",
       "dateLabel":     "Fri 10 Apr",
       "date":          "2026-04-10",
       "grade":         "A",
-      "targetHrs":     2.5,
+      "targetHrs":     1.5,
       "completedHrs":  0,
       "sessions":      [],
-      "plan":          "Full 2.5 hr block on Thu 9 Apr",
-      "note":          "A-grade — one focused session is enough"
+      "plan":          "1.5 hr block Thu 9 Apr: 17:00–18:30",
+      "note":          "A-grade — topic confirmed as Coord Geometry. 1.5 hrs sufficient."
     },
     {
       "id":            "chemistry-sep-redox",
@@ -38,15 +38,15 @@
     {
       "id":            "economics-ch20-21",
       "subject":       "Economics",
-      "topic":         "Ch 20 & 21",
+      "topic":         "Ch 20 only",
       "dateLabel":     "Wed 15 Apr",
       "date":          "2026-04-15",
       "grade":         "D",
-      "targetHrs":     4,
+      "targetHrs":     3,
       "completedHrs":  0,
       "sessions":      [],
-      "plan":          "Tue 7 (1 hr) + Wed 8 (1.25 hrs) + Thu 9 (1 hr) + Mon 13 (0.25 hr) + Tue 14 (2 hrs) — first 2 hrs started today",
-      "note":          "D-grade — 3–4 hrs needed. Started today!"
+      "plan":          "Wed 8 (1.25 hrs) + Thu 9 (2 hrs) + Tue 14 top-up if needed",
+      "note":          "D-grade, Ch 20 only (scope reduced). 3 hrs needed."
     },
     {
       "id":            "french-rw",
@@ -163,9 +163,9 @@
       "date":          "2026-05-06",
       "grade":         "D",
       "targetHrs":     10,
-      "completedHrs":  0,
-      "sessions":      [],
-      "plan":          "Started today! Apr 7 (1 hr) + multiple sessions through May",
+      "completedHrs":  1,
+      "sessions":      [{"date": "Apr 7", "hrs": 1, "note": "A Midsummer Night's Dream — key scenes, characters, quotes"}],
+      "plan":          "Apr 7 (1 hr done ✅) + multiple sessions through May",
       "note":          "🔴 PRIORITY — D-grade. MSND scenes, 8 poems, 5 prose stories"
     },
     {

@@ -26,7 +26,10 @@
       "Bash(gh --version)",
       "Bash(git --version)",
       "Bash(ssh -T git@github.com)",
-      "Bash(ls ~/.ssh/*.pub)"
+      "Bash(ls ~/.ssh/*.pub)",
+      "Bash(ssh-keygen -t ed25519 -C \"alissa-study-planner\" -f ~/.ssh/alissa_github -N \"\")",
+      "Bash(chmod 600 ~/.ssh/config ~/.ssh/alissa_github)",
+      "Bash(chmod 644 ~/.ssh/alissa_github.pub)"
     ]
   }
 }
