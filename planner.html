@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alissa's Study Planner</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #ECEEF2; color: #1A2535; }
+
+    /* ── Header ─────────────────────────────────────────── */
+    .header { background: #1A2535; color: white; padding: 0 24px; height: 58px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+    .header-title { font-size: 17px; font-weight: 700; }
+    .header-sub   { font-size: 11px; color: #8DB8A0; margin-top: 2px; }
+    .header-date  { font-size: 12px; color: #B0D8C0; background: rgba(255,255,255,0.08); padding: 6px 14px; border-radius: 20px; }
+
+    /* ── Layout ──────────────────────────────────────────── */
+    .layout  { display: flex; max-width: 1380px; margin: 0 auto; padding: 20px 18px 60px; gap: 20px; }
+    .sidebar { width: 270px; flex-shrink: 0; }
+    .main    { flex: 1; min-width: 0; }
+    @media (max-width: 820px) { .layout { flex-direction: column; } .sidebar { width: 100%; } }
+
+    /* ── Card shell ──────────────────────────────────────── */
+    .card { background: white; border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.08); margin-bottom: 12px; overflow: hidden; }
+    .card-header { padding: 11px 16px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #777; border-bottom: 1px solid #F0F0F0; }
+
+    /* ── Alerts ──────────────────────────────────────────── */
+    .alert { border-radius: 10px; padding: 11px 15px; margin-bottom: 10px; }
+    .alert-warn     { background: #FFF3CD; border-left: 4px solid #F0A500; }
+    .alert-reminder { background: #EBF5FF; border-left: 4px solid #4A90D9; }
+    .alert-level    { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .alert-warn     .alert-level { color: #B07800; }
+    .alert-reminder .alert-level { color: #1A60A0; }
+    .alert-msg    { font-size: 12px; color: #333; line-height: 1.5; margin-bottom: 5px; }
+    .alert-action { font-size: 11px; color: #555; background: rgba(0,0,0,0.05); padding: 5px 8px; border-radius: 5px; line-height: 1.5; }
+
+    /* ── Grade profile ───────────────────────────────────── */
+    .grade-item    { display: flex; align-items: center; padding: 7px 14px; border-bottom: 1px solid #F5F5F5; gap: 8px; }
+    .grade-item:last-child { border-bottom: none; }
+    .grade-subj    { font-size: 12px; font-weight: 600; flex: 1; }
+    .grade-pct     { font-size: 11px; color: #888; width: 42px; text-align: right; }
+    .grade-badge   { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 10px; }
+    .gA { background: #E8F5EC; color: #2A7040; }
+    .gB { background: #E8F5FF; color: #1E5080; }
+    .gC { background: #FFFAE0; color: #7A5F00; }
+    .gD { background: #FFE8E0; color: #A03010; }
+    .gP { background: #F0F0F0; color: #505050; }
+    .trend-up   { color: #5BAD6F; font-size: 11px; }
+    .trend-dn   { color: #E05C20; font-size: 11px; }
+    .trend-st   { color: #AAA;    font-size: 11px; }
+
+    /* ── Tests strip ─────────────────────────────────────── */
+    .tests-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 11px 14px; scrollbar-width: none; }
+    .tests-scroll::-webkit-scrollbar { display: none; }
+    .test-pill { flex-shrink: 0; padding: 8px 11px; border-radius: 8px; min-width: 105px; border: 1.5px solid; }
+    .test-subj { font-size: 11px; font-weight: 700; }
+    .test-topic{ font-size: 10px; opacity: 0.7; margin-top: 1px; }
+    .test-date { font-size: 10px; font-weight: 600; margin-top: 4px; }
+    .ready-NS  { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #E05C20; margin-top: 2px; }
+    .ready-IP  { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #F0A500; margin-top: 2px; }
+    .ready-OK  { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #5BAD6F; margin-top: 2px; }
+
+    /* ── Phase divider ───────────────────────────────────── */
+    .phase-div { display: flex; align-items: center; gap: 10px; padding: 14px 0 8px; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.1px; color: #AAA; }
+    .phase-div::before, .phase-div::after { content: ''; flex: 1; height: 1px; background: #DDD; }
+
+    /* ── Day card ────────────────────────────────────────── */
+    .day-card { background: white; border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.08); margin-bottom: 10px; overflow: hidden; transition: box-shadow 0.15s; }
+    .day-card:hover  { box-shadow: 0 3px 12px rgba(0,0,0,0.12); }
+    .day-card.today  { box-shadow: 0 0 0 2.5px #4A90D9, 0 3px 14px rgba(74,144,217,0.2); }
+    .day-card.missed { opacity: 0.82; }
+
+    .day-header { padding: 11px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .day-header:hover { background: #FAFAFA; }
+    .day-date  { font-size: 14px; font-weight: 800; min-width: 52px; }
+    .day-dname { font-size: 11.5px; color: #777; flex: 1; }
+    .badges    { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    .badge     { font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+    .b-today   { background: #4A90D9; color: white; }
+    .b-missed  { background: #FFE8E0; color: #A03010; }
+    .b-done    { background: #E8F5EC; color: #2A7040; }
+    .b-partial { background: #FFFAE0; color: #7A5F00; }
+    .b-up      { background: #F0F0F0; color: #555; }
+    .b-test    { background: #FFF0E0; color: #C04010; border: 1px solid #E07840; }
+    .b-exam    { background: #FFE0E0; color: #900; border: 1px solid #C0392B; }
+    .b-hol     { background: #FFF8E0; color: #8B6900; }
+    .b-sl      { background: #E8F5EC; color: #2E7D32; }
+    .chevron   { color: #CCC; font-size: 11px; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(90deg); }
+
+    /* ── Progress bar ────────────────────────────────────── */
+    .prog-wrap { height: 3px; background: #F0F0F0; }
+    .prog-fill { height: 100%; transition: width 0.3s; }
+
+    /* ── Day body ────────────────────────────────────────── */
+    .day-body { padding: 4px 0 14px; border-top: 1px solid #F5F5F5; }
+
+    /* ── Sec label ───────────────────────────────────────── */
+    .sec-label { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #BBB; padding: 10px 16px 4px; }
+
+    /* ── Free windows ────────────────────────────────────── */
+    .free-win { font-size: 10.5px; color: #5BAD6F; font-weight: 600; padding: 2px 16px 6px; }
+
+    /* ── Carried-forward ─────────────────────────────────── */
+    .cf-item { font-size: 11px; color: #E05C20; background: #FFF0EB; border-radius: 5px; padding: 4px 10px; margin: 2px 16px; }
+
+    /* ── Note ────────────────────────────────────────────── */
+    .day-note { font-size: 11px; color: #888; font-style: italic; padding: 6px 16px 0; }
+
+    /* ══ TIMELINE ════════════════════════════════════════════ */
+    .timeline { padding: 6px 16px 0; }
+    .tl-item  { display: flex; gap: 0; min-height: 30px; }
+    .tl-time  { width: 88px; flex-shrink: 0; font-size: 10px; color: #AAA; font-variant-numeric: tabular-nums; padding: 8px 10px 0 0; text-align: right; line-height: 1.3; }
+    .tl-spine { width: 22px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+    .tl-dot   { width: 9px; height: 9px; border-radius: 50%; margin-top: 9px; flex-shrink: 0; }
+    .tl-line  { flex: 1; width: 2px; background: #EEEEEE; margin-top: 1px; }
+    .tl-body  { flex: 1; padding: 5px 0 5px 6px; font-size: 11.5px; line-height: 1.45; }
+    .tl-label { font-weight: 500; }
+    .tl-dur   { font-size: 10px; color: #BBB; margin-top: 1px; }
+
+    /* Timeline item types */
+    .tl-travel .tl-dot   { background: #CCCCCC; }
+    .tl-travel .tl-body  { color: #999; font-style: italic; }
+    .tl-travel .tl-label { font-weight: 400; }
+
+    .tl-tuition .tl-body { font-weight: 600; }
+
+    .tl-meal .tl-dot  { background: #D4B896; }
+    .tl-meal .tl-body { color: #8B6010; }
+
+    .tl-study .tl-dot { background: #5BAD6F; }
+
+    .tl-homework .tl-dot  { background: #AAAAAA; }
+    .tl-homework .tl-body { color: #555; }
+
+    .tl-meeting .tl-dot  { background: #9B59B6; }
+    .tl-meeting .tl-body { color: #6A3A9A; font-weight: 600; }
+
+    .tl-exam .tl-dot  { background: #C0392B; }
+    .tl-exam .tl-body { color: #8B0000; font-weight: 700; }
+
+    .tl-test .tl-dot  { background: #E05C20; }
+    .tl-test .tl-body { color: #803010; font-weight: 700; }
+
+    .tl-note .tl-dot  { background: #DDD; }
+    .tl-note .tl-body { color: #888; }
+
+    /* ── Today button ────────────────────────────────────── */
+    .today-btn { position: fixed; bottom: 22px; right: 22px; background: #1A2535; color: white; border: none; padding: 10px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); z-index: 200; transition: background 0.15s; }
+    .today-btn:hover { background: #4A90D9; }
+
+    /* ── How-to box ──────────────────────────────────────── */
+    .howto { background: #F0F8FF; border: 1px solid #C8DDEF; border-radius: 10px; padding: 12px 15px; margin-bottom: 12px; font-size: 11.5px; color: #2A4A6A; line-height: 1.7; }
+    .howto strong { font-weight: 700; }
+
+    /* ── Study Tracker ───────────────────────────────────── */
+    .tracker-header { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+    .tracker-header:hover { background: #FAFAFA; }
+    .tracker-summary { display: flex; gap: 16px; padding: 0 16px 12px; flex-wrap: wrap; }
+    .tracker-stat { text-align: center; }
+    .tracker-stat-val { font-size: 22px; font-weight: 800; line-height: 1; }
+    .tracker-stat-lbl { font-size: 10px; color: #AAA; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+    .tracker-section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #BBB; padding: 8px 16px 6px; border-top: 1px solid #F5F5F5; }
+    .tracker-row { display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-bottom: 1px solid #F8F8F8; }
+    .tracker-row:last-child { border-bottom: none; }
+    .tracker-subject { font-size: 12px; font-weight: 700; min-width: 110px; }
+    .tracker-topic { font-size: 10.5px; color: #888; flex: 1; }
+    .tracker-date { font-size: 10px; color: #AAA; min-width: 60px; text-align: right; }
+    .tracker-grade-badge { font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 8px; min-width: 22px; text-align: center; }
+    .tracker-bar-wrap { width: 120px; height: 6px; background: #F0F0F0; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .tracker-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .tracker-hrs { font-size: 11px; font-weight: 700; min-width: 64px; text-align: right; }
+    .tracker-done-badge { font-size: 9px; font-weight: 800; color: #5BAD6F; margin-left: 2px; }
+    .tracker-sessions { font-size: 9.5px; color: #CCC; padding: 0 16px 4px; font-style: italic; display: none; }
+    .tracker-row:hover + .tracker-sessions { display: block; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ════════════════════════════════ DATA ════════════════════════════════ -->
+<script>
+
+/* ── Scheduling rules (for reference) ───────────────────────────────────
+   Regular tests  → 2–3 hrs total revision
+   D-grade tests  → 3–4 hrs total revision  (Add Math, Economics, Eng Lit)
+   Exams          → full days in exam period
+   Daily homework → 1 hr (anywhere that fits)
+   Weekday day starts 4 PM, ends 10:30 PM
+   Travel: 15 min BEFORE + 15 min AFTER every tuition class
+─────────────────────────────────────────────────────────────────────── */
+
+/* ── Weekly tuition + travel (applied automatically to every week) ───── */
+const TUITION_SCHEDULE = {
+  Monday: [
+    { type:'travel',  emoji:'🚶', label:'Travel to Economics tuition', start:'16:00', end:'16:15', dotColor:'#CCC' },
+    { type:'tuition', emoji:'📐', label:'Economics Tuition',           start:'16:15', end:'17:45', dotColor:'#C8A000', subject:'Economics', bg:'#FFFAE0' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',                 start:'17:45', end:'18:00', dotColor:'#CCC' },
+    { type:'meal',    emoji:'🍽️', label:'Dinner',                     start:'18:00', end:'18:15', dotColor:'#D4B896' },
+    { type:'travel',  emoji:'🚶', label:'Travel to Physics tuition',   start:'18:15', end:'18:30', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🔵', label:'Physics Tuition',             start:'18:30', end:'21:00', dotColor:'#4A90D9', subject:'Physics', bg:'#E8F2FC' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',                 start:'21:00', end:'21:15', dotColor:'#CCC' },
+  ],
+  Tuesday: [
+    { type:'meal',    emoji:'🍽️', label:'Dinner',                   start:'19:00', end:'19:45', dotColor:'#D4B896' },
+    { type:'travel',  emoji:'🚶', label:'Travel to Physics tuition', start:'19:45', end:'20:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🔵', label:'Physics Tuition',           start:'20:00', end:'21:00', dotColor:'#4A90D9', subject:'Physics', bg:'#E8F2FC' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'21:00', end:'21:15', dotColor:'#CCC' },
+  ],
+  Wednesday: [
+    { type:'travel',  emoji:'🚶', label:'Travel to English tuition', start:'15:15', end:'15:30', dotColor:'#CCC' },
+    { type:'tuition', emoji:'📗', label:'English Tuition',           start:'15:30', end:'17:30', dotColor:'#3AADAD', subject:'English', bg:'#E8F7F7' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'17:30', end:'17:45', dotColor:'#CCC' },
+    { type:'meal',    emoji:'🍽️', label:'Dinner',                   start:'18:30', end:'19:15', dotColor:'#D4B896' },
+    { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',    start:'19:45', end:'20:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🟣', label:'Math Tuition',              start:'20:00', end:'21:00', dotColor:'#8E7DC8', subject:'Math', bg:'#F0EEFF' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'21:00', end:'21:15', dotColor:'#CCC' },
+  ],
+  Thursday: [
+    { type:'meal',    emoji:'🍽️', label:'Dinner', start:'19:30', end:'20:15', dotColor:'#D4B896' },
+  ],
+  Friday: [
+    { type:'travel',  emoji:'🚶', label:'Travel to Physics+Chemistry tuition', start:'16:00', end:'16:15', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🔬', label:'Physics + Chemistry Tuition',         start:'16:15', end:'19:00', dotColor:'#E8964A', subject:'Phys/Chem', bg:'#FEF3E8' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',                          start:'19:00', end:'19:15', dotColor:'#CCC' },
+    { type:'meal',    emoji:'🍽️', label:'Dinner',                              start:'19:15', end:'20:00', dotColor:'#D4B896' },
+  ],
+  Saturday: [
+    { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',    start:'09:45', end:'10:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🟣', label:'Math Tuition',              start:'10:00', end:'11:30', dotColor:'#8E7DC8', subject:'Math', bg:'#F0EEFF' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'11:30', end:'11:45', dotColor:'#CCC' },
+    { type:'meal',    emoji:'🍽️', label:'Lunch',                    start:'12:30', end:'13:00', dotColor:'#D4B896' },
+    { type:'travel',  emoji:'🚶', label:'Travel to English tuition', start:'13:00', end:'13:15', dotColor:'#CCC' },
+    { type:'tuition', emoji:'📗', label:'English Tuition',           start:'13:15', end:'14:45', dotColor:'#3AADAD', subject:'English', bg:'#E8F7F7' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'14:45', end:'15:00', dotColor:'#CCC' },
+    { type:'travel',  emoji:'🚶', label:'Travel to French tuition',  start:'16:45', end:'17:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🇫🇷', label:'French Tuition',           start:'17:00', end:'19:00', dotColor:'#D96B8C', subject:'French', bg:'#FDE8EF' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'19:00', end:'19:15', dotColor:'#CCC' },
+    { type:'travel',  emoji:'🚶', label:'Travel to Debate',          start:'19:45', end:'20:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🎤', label:'Debate',                    start:'20:00', end:'21:30', dotColor:'#6EB5A0', subject:'Debate', bg:'#E8F5F0' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'21:30', end:'21:45', dotColor:'#CCC' },
+  ],
+  Sunday: [
+    { type:'travel',  emoji:'🚶', label:'Travel to Physics tuition', start:'10:45', end:'11:00', dotColor:'#CCC' },
+    { type:'tuition', emoji:'🔵', label:'Physics Tuition',           start:'11:00', end:'13:30', dotColor:'#4A90D9', subject:'Physics', bg:'#E8F2FC' },
+    { type:'travel',  emoji:'🚶', label:'Travel home',               start:'13:30', end:'13:45', dotColor:'#CCC' },
+    { type:'meal',    emoji:'🍽️', label:'Lunch',                    start:'13:30', end:'14:00', dotColor:'#D4B896' },
+  ],
+};
+
+/* ── All day data ─────────────────────────────────────────────────────── */
+const DATA = {
+  meta: { lastUpdated:'2026-04-07', student:'Alissa Saurin Jhaveri', grade:'IX', school:'Hill Spring International School' },
+
+  gradeProfile: {
+    'Add Math':         { grade:'D', pct:63.91, priority:1, trend:'improving', color:'#E05C20' },
+    'Economics':        { grade:'D', pct:63.42, priority:1, trend:'dropped',   color:'#E05C20' },
+    'English Lit':      { grade:'D', pct:63.93, priority:1, trend:'dropped',   color:'#E05C20' },
+    'English Language': { grade:'C', pct:71.29, priority:2, trend:'steady',    color:'#F0C030' },
+    'Physics':          { grade:'C', pct:67.84, priority:2, trend:'improving', color:'#F0C030' },
+    'Chemistry':        { grade:'C', pct:69.58, priority:2, trend:'improving', color:'#F0C030' },
+    'French':           { grade:'B', pct:83.82, priority:3, trend:'strong',    color:'#5BAD6F' },
+    'Biology':          { grade:'A', pct:85.67, priority:4, trend:'strong',    color:'#4A90D9' },
+    'Int Math':         { grade:'A', pct:86.61, priority:4, trend:'strong',    color:'#4A90D9' },
+    'Marathi':          { grade:'P/F',pct:null,  priority:5, trend:'passfail', color:'#A0A0A0' },
+  },
+
+  alerts: [
+    { level:'WARNING',  message:'April 6 missed — had homework, no studying done. Carry-forward items added to Apr 7–9.', action:'Chemistry Ch 1 and Int Math Mensuration spread across Tue–Thu. Eco started today (Apr 7).' },
+    { level:'REMINDER', message:'Int Math Mensuration test — Friday Apr 10 (3 days). 2–3 hrs revision total needed (A-grade subject).', action:'Full 2.5 hr session on Thursday Apr 9. Nothing extra needed.' },
+  ],
+
+  upcomingTests: [
+    { date:'2026-04-10', subject:'Int Math',  topic:'Mensuration',             daysAway:3,  readyStatus:'IN PROGRESS' },
+    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:6,  readyStatus:'NOT STARTED' },
+    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 & 21',              daysAway:8,  readyStatus:'IN PROGRESS' },
+    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:8,  readyStatus:'NOT STARTED' },
+    { date:'2026-04-16', subject:'Add Math',  topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED' },
+    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:10, readyStatus:'NOT STARTED' },
+    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',              daysAway:14, readyStatus:'NOT STARTED' },
+    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',    daysAway:16, readyStatus:'NOT STARTED' },
+    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich', daysAway:17, readyStatus:'NOT STARTED' },
+  ],
+
+  days: {
+    '2026-04-06': { dayOfWeek:'Monday',    status:'missed', freeWindows:['21:15–22:30 (1.25 hrs)'], planned:[], completed:[], carriedForward:['Int Math: Mensuration formulas review','Chemistry: Ch 1 States of Matter'], note:'Had homework. No studying done.', behindAlert:true },
+
+    '2026-04-07': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '16:00–17:00 — English Lit: A Midsummer Night\'s Dream — key scenes, characters, quotes 📚🔴',
+        '17:00–18:00 — Economics: Ch 20 & 21 — key terms, definitions, demand/supply diagrams ⚠️🔴',
+        '18:00–19:00 — Homework',
+        '21:15–21:45 — Online meeting',
+        '21:45–22:30 — Homework',
+      ], completed:[], note:'Int Math saved for Thursday (2–3 hrs intensive). Eco + Eng Lit focus today.' },
+
+    '2026-04-08': { dayOfWeek:'Wednesday', status:'upcoming', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '17:45–18:30 — Economics: Ch 20 & 21 — detailed notes, 8-mark essay structure ⚠️🔴',
+        '19:15–19:45 — Physics: Ch 7 Light — reflection + refraction overview 📚🟡',
+        '21:15–22:00 — Homework',
+        '22:00–22:30 — Economics: Key definitions flash review ⚠️🔴',
+      ], completed:[], note:'Eco + Physics focus. Int Math on Thursday.' },
+
+    '2026-04-09': { dayOfWeek:'Thursday',  status:'upcoming', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
+      planned:[
+        '16:00–17:00 — Homework',
+        '17:00–19:30 — Int Math: Mensuration — 2.5 hr full session: formulas, worked examples, past paper timed ⚠️ TEST TOMORROW',
+        '20:15–21:15 — Economics: Ch 20 & 21 — essay plans + key diagrams ⚠️🔴',
+        '21:15–22:30 — Add Math: Functions + quadratics — exam prep 📚🔴',
+      ], completed:[], note:'Int Math crushed in one big block. Eco top-up + Add Math exam prep in the evening.' },
+
+    '2026-04-10': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Int Math — Mensuration', freeWindows:['20:00–22:30 (2.5 hrs — after dinner)'],
+      planned:[
+        'Morning — TEST: Int Math Mensuration',
+        '20:00–21:00 — Chemistry: Separation techniques — distillation, filtration, chromatography ⚠️',
+        '21:00–22:00 — Chemistry: Redox — OIL RIG, oxidation states, worked examples ⚠️',
+        '22:00–22:30 — Homework',
+      ], completed:[], note:'2–3 hrs Chemistry prep starts tonight (test Mon Apr 13).' },
+
+    '2026-04-11': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
+      planned:[
+        '11:45–12:30 — Chemistry: Separation + Redox — past paper questions timed ⚠️',
+        '15:00–16:00 — Chemistry: Lab tests — identification tests, experimental observations ⚠️',
+        '16:00–16:45 — Homework',
+        '19:15–19:45 — Chemistry: Flashcards + summary sheet ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-12': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
+      planned:[
+        '10:00–10:45 — Chemistry: Full timed past paper (separation + redox) ⚠️ TEST TOMORROW',
+        '14:00–15:00 — Chemistry: Mark paper + revise all weak areas ⚠️',
+        '15:00–15:30 — Chemistry: Final summary notes ⚠️',
+        '15:30–16:30 — Homework',
+        '16:30–18:30 — Economics: Ch 20 & 21 — revision + essay planning (3–4 hrs total needed) ⚠️🔴',
+        '18:30–20:30 — Add Math: Scan syllabus + weak topics: functions, log/exp, calculus 📚🔴',
+        '20:30–22:30 — English Lit: A Midsummer Night\'s Dream — Act scenes, character quotes 📚🔴',
+      ], completed:[], note:'' },
+
+    '2026-04-13': { dayOfWeek:'Monday',    status:'upcoming', examOrTest:'TEST: Chemistry — Separation + Redox', freeWindows:['21:15–22:30 (1.25 hrs)'],
+      planned:[
+        'Morning — TEST: Chemistry (Separation + Redox)',
+        '21:15–22:15 — Homework',
+        '22:15–22:30 — Economics: Quick key definitions review ⚠️🔴',
+      ], completed:[], note:'' },
+
+    '2026-04-14': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '16:00–17:00 — Homework',
+        '17:00–19:00 — Economics: Ch 20 & 21 — detailed revision, key terms, 8-mark essay practice ⚠️🔴 (3–4 hrs total needed)',
+        '21:15–22:30 — French: Reading & Writing — full past paper timed practice ⚠️ TEST TOMORROW',
+      ], completed:[], note:'' },
+
+    '2026-04-15': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TESTS: Economics (Ch20-21) + French (R&W)', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        'Morning — TESTS: Economics + French',
+        '17:45–18:30 — Add Math: Full topic scan + note weakest areas ⚠️🔴 TEST TOMORROW',
+        '19:15–19:45 — Add Math: Functions + quadratics + polynomials ⚠️🔴',
+        '21:15–22:15 — Homework',
+        '22:15–22:30 — Add Math: Log/exp quick review ⚠️🔴',
+      ], completed:[], note:'Only 2.5 hrs free on Wed. Add Math needs 3–4 hrs — Sunday Apr 12 is the main prep day.' },
+
+    '2026-04-16': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'TEST: Add Math', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
+      planned:[
+        'Morning — TEST: Add Math',
+        '16:00–16:30 — Rest (two tests this week)',
+        '16:30–17:30 — Homework',
+        '17:30–19:30 — Biology: Modules 1–5 — rapid notes review (2–3 hrs total, A-grade) ⚠️',
+        '20:15–22:30 — Biology: Modules 6–10 — rapid notes review ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-17': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Biology', freeWindows:['20:00–22:30 (2.5 hrs)'],
+      planned:[
+        'Morning — TEST: Biology',
+        '20:00–21:00 — Homework',
+        '21:00–22:30 — Physics Practicals: ATP skills — design, data recording, graph drawing, error analysis ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-18': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
+      planned:[
+        '11:45–12:30 — Physics Practicals: Past paper ATP questions timed ⚠️',
+        '15:00–16:00 — Physics Practicals: Graph interpretation, uncertainty, planning ⚠️',
+        '16:00–16:45 — Homework',
+        '19:15–19:45 — Add Math: Calculus — differentiation rules + practice 📚🔴',
+      ], completed:[], note:'' },
+
+    '2026-04-19': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
+      planned:[
+        '10:00–10:45 — Physics Practicals: Full ATP past paper timed ⚠️ TEST IN 2 DAYS',
+        '14:00–15:00 — Physics Practicals: Mark + fix weak areas ⚠️',
+        '15:00–16:00 — Homework',
+        '16:00–18:00 — Physics Ch 7: Light — reflection, refraction, TIR, lenses, ray diagrams ⚠️',
+        '18:00–19:30 — Economics: Ch 1–3 revision — demand/supply, PED/PES, market failure 📚🔴',
+        '19:30–21:00 — English Lit: Poetry — all 8 poems, themes, techniques, 2 quotes each 📚🔴',
+        '21:00–22:00 — Add Math: Integration + kinematics practice 📚🔴',
+      ], completed:[], note:'' },
+
+    '2026-04-20': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '21:15–22:15 — Homework',
+        '22:15–22:30 — Physics Practicals: Quick review ⚠️ TEST TOMORROW',
+      ], completed:[], note:'' },
+
+    '2026-04-21': { dayOfWeek:'Tuesday',   status:'upcoming', examOrTest:'TEST: Physics Practicals', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        'Morning — TEST: Physics Practicals',
+        '16:00–17:00 — Homework',
+        '17:00–19:00 — Physics Light: Reflection, refraction, lenses — theory + ray diagram practice ⚠️',
+        '21:15–22:30 — Physics Light: Past paper questions on light ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-22': { dayOfWeek:'Wednesday', status:'upcoming', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '17:45–18:30 — Physics Light: Full timed past paper section ⚠️ TEST TOMORROW',
+        '19:15–19:45 — Physics Light: Review mistakes, optics weak spots ⚠️',
+        '21:15–22:15 — Homework',
+        '22:15–22:30 — Chemistry: Periodic table — groups, trends overview ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-23': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'TEST: Physics Light', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
+      planned:[
+        'Morning — TEST: Physics Light',
+        '16:00–17:00 — Homework',
+        '17:00–19:30 — Chemistry: Periodic table (groups 1, 7, 0; trends) + Stoichiometry (mole calculations) ⚠️ TEST TOMORROW',
+        '20:15–22:30 — Chemistry: Past paper questions — periodic table + stoichiometry timed ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-24': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Chemistry (Periodic table + Stoichiometry)', freeWindows:['20:00–22:30 (2.5 hrs)'],
+      planned:[
+        'Morning — TEST: Chemistry',
+        '20:00–21:00 — Homework',
+        '21:00–22:30 — French Speaking: Oral topics practice — everyday activities, personal life, world around us ⚠️',
+      ], completed:[], note:'' },
+
+    '2026-04-25': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
+      planned:[
+        '11:45–12:30 — French Speaking: Mock oral, pronunciation, structured responses ⚠️',
+        '15:00–16:00 — Homework',
+        '16:00–16:45 — English Lit: Prose — all 5 stories, key themes + characters 📚🔴',
+        '19:15–19:45 — Add Math: Trig (exact values, identities), circular measure 📚🔴',
+      ], completed:[], note:'' },
+
+    '2026-04-26': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
+      planned:[
+        '10:00–10:45 — French Speaking: Full mock oral, all 5 topic areas ⚠️',
+        '14:00–15:00 — Homework',
+        '15:00–17:00 — English Lit: Poetry — all 8 poems: themes, language techniques, 2 quotes each 📚🔴',
+        '17:00–19:00 — Add Math: Calculus — differentiation + integration full practice 📚🔴',
+        '19:00–20:30 — Economics: Essay practice — 8-mark structured answers 📚🔴',
+        '20:30–22:00 — English Language: Comprehension + writer\'s effect + summary techniques 📚🟡',
+      ], completed:[], note:'' },
+
+    '2026-04-27': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '21:15–22:15 — Homework',
+        '22:15–22:30 — French Speaking: Vocabulary list + key phrases ⚠️',
+      ], completed:[], note:'Last regular school day' },
+
+    '2026-04-28': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['10:00–19:45 (full morning + afternoon)','21:15–22:30 (1.25 hrs)'],
+      planned:[
+        '10:00–12:00 — French Speaking: Final mock oral, role-plays, all 5 topic areas ⚠️ EXAM TOMORROW',
+        '12:00–13:00 — Lunch',
+        '13:00–15:00 — English Lit: Drama — A Midsummer Night\'s Dream: key scenes, quotes, themes 📚🔴',
+        '15:00–17:00 — Add Math: No-calculator techniques — log laws, differentiation, exact trig 📚🔴',
+        '17:00–19:00 — Economics: Full topic summary + structured essay plans 📚🔴',
+        '21:15–22:30 — English Language: Writing genres — letter, speech, report, descriptive 📚🟡',
+      ], completed:[], note:'STUDY LEAVE — no school. Physics tuition still applies 20:00–21:00.' },
+
+    '2026-04-29': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'EXAM: French Speaking',                               freeWindows:['Afternoon free after exam'], planned:['Morning — EXAM: French Speaking','Afternoon — English Lit: Prose texts + Add Math: Functions past paper 📚🔴'], completed:[], note:'' },
+    '2026-04-30': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'EXAM: French Speaking (continued)',                   freeWindows:['Afternoon free after exam'], planned:['Morning — EXAM: French Speaking (continued)','Afternoon — Economics Ch 1–3 comprehensive revision 📚🔴','Evening — English Language: Reading comprehension practice 📚🟡'], completed:[], note:'' },
+    '2026-05-01': { dayOfWeek:'Friday',    status:'upcoming', note:'PUBLIC HOLIDAY',                                            freeWindows:['All day'], planned:['10:00–12:00 — English Language: Comprehension + writer\'s effect 📚🟡','13:00–15:00 — English Lit: Drama + Prose texts 📚🔴','15:30–17:30 — Add Math P1: Functions, quadratics, log/exp, straight lines 📚🔴','19:00–21:00 — Add Math: Circular measure, trig, polynomials 📚🔴'], completed:[], note:'Public Holiday' },
+    '2026-05-02': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30','15:00–16:45','19:15–19:45'], planned:['11:45–12:30 — Add Math: Trigonometry identities + equations 📚🔴','15:00–16:45 — English Lit: Poetry — annotate all 8 poems 📚🔴','19:15–19:45 — Economics: MCQ + short-answer technique 📚🔴'], completed:[], note:'' },
+    '2026-05-03': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45','14:00–22:30'], planned:['10:00–10:45 — English Language: Writing genres — newspaper, letter, speech, report 📚🟡','14:00–16:00 — Add Math: Calculus past paper (differentiation + integration) 📚🔴','16:00–18:00 — English Lit: Drama — re-read key scenes + essay plan 📚🔴','18:00–20:00 — Economics: 8-mark structured essay writing 📚🔴','20:00–22:00 — Int Math: Algebra + coordinate geometry refresher 📚✅'], completed:[], note:'' },
+    '2026-05-04': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['21:15–22:30'], planned:['21:15–22:30 — English Language: Writing genres timed practice 📚🟡'], completed:[], note:'' },
+    '2026-05-05': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–19:00','21:15–22:30'], planned:['16:00–19:00 — Add Math: Full P1 past paper (no calc, timed) + review 📚🔴 EXAM TOMORROW','21:15–22:30 — English Language: Final reading strategies + writer\'s effect vocab 📚🟡'], completed:[], note:'' },
+    '2026-05-06': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'EXAMS: English Lang P1 · English Lit Drama · Add Math P1', freeWindows:['Evening after exams'], planned:['Morning — EXAMS: English Lang P1 + English Lit Drama + Add Math P1','Evening — Int Math: Algebra, coord geometry, sequences — no-calc prep 📚✅'], completed:[], note:'' },
+    '2026-05-07': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'EXAM: Int Math P2 (No Calculator)', freeWindows:['Afternoon–evening'], planned:['Morning — EXAM: Int Math P2','Afternoon — Economics: MCQ flashcards + structured essay plans 📚🔴 EXAM TOMORROW','Evening — Economics: Timed P2 essay practice 📚🔴'], completed:[], note:'' },
+    '2026-05-08': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'EXAMS: Economics P1 (MCQ) + Economics P2', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: Economics P1 + P2','Afternoon — English Lit: Poetry + Prose revision 📚🔴','Evening — Marathi: Prose, poem, grammar overview 📚⚪'], completed:[], note:'' },
+    '2026-05-09': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30','15:00–16:45','19:15–19:45'], planned:['11:45–12:30 — English Lit: Poetry all 8 poems + Prose 5 texts 📚🔴','15:00–16:45 — English Lit: Drama + exam essay plans 📚🔴','19:15–19:45 — Marathi: Prose, poem, grammar + सूचना लेखन 📚⚪'], completed:[], note:'' },
+    '2026-05-10': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45','14:00–22:30'], planned:['10:00–10:45 — English Lit: Final poetry quotes + prose moments 📚🔴 EXAMS TOMORROW','14:00–17:00 — Add Math P2: Calculus past paper timed (with calc) 📚🔴 EXAM TOMORROW','17:00–19:00 — Marathi: Grammar revision + सूचना लेखन 📚⚪ EXAM TOMORROW','19:00–21:00 — English Lit: Poetry themes + quotes quick-fire 📚🔴','21:00–22:00 — Add Math: Calc formulas + kinematics 📚🔴'], completed:[], note:'' },
+    '2026-05-11': { dayOfWeek:'Monday',    status:'upcoming', examOrTest:'EXAMS: English Lit P1 · Marathi · Add Math P2', freeWindows:['Evening'], planned:['Morning — EXAMS: Eng Lit P1 + Marathi + Add Math P2','Evening — English Language P2: Writing tasks 📚🟡 EXAM TOMORROW','Evening — French: Vocab all 5 topic areas + listening strategy 📚🟢 EXAM TOMORROW'], completed:[], note:'' },
+    '2026-05-12': { dayOfWeek:'Tuesday',   status:'upcoming', examOrTest:'EXAMS: English Language P2 · French Listening P1', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: Eng Lang P2 + French P1 (Listening)','Afternoon — Physics: All 7 chapters theory + definitions 📚🟡 EXAM TOMORROW','Evening — Physics ATP: Lab skills, graph drawing, uncertainty 📚🟡 EXAM TOMORROW'], completed:[], note:'' },
+    '2026-05-13': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'EXAMS: Physics P4 (Theory) · Physics P6 (ATP)', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: Physics P4 + P6','Afternoon — Chemistry: Full syllabus revision 📚🟡 EXAMS TOMORROW','Evening — Chemistry ATP: Experiments, identification tests, MCQ 📚🟡 EXAMS TOMORROW'], completed:[], note:'' },
+    '2026-05-14': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'EXAMS: Chemistry P4 · Chemistry P2 (MCQ) · Chemistry P6', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: Chemistry P4 + P2 + P6','Afternoon — French: Reading comprehension + writing techniques 📚🟢 EXAMS TOMORROW','Evening — Physics MCQ: Key definitions all 7 chapters 📚🟡 EXAM TOMORROW'], completed:[], note:'' },
+    '2026-05-15': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'EXAMS: French P2 (Reading) · French P4 (Writing) · Physics P2 (MCQ)', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: French P2 + P4 + Physics MCQ','Afternoon — Int Math: Percentages, rates, coord geometry, sequences 📚✅','Evening — Int Math: Investigation-style problems 📚✅'], completed:[], note:'' },
+    '2026-05-16': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30','15:00–16:45','19:15–19:45'], planned:['11:45–12:30 — Int Math: Algebra + simultaneous equations 📚✅','15:00–16:45 — Int Math: P4 (with calc) past paper timed + review 📚✅ EXAMS MONDAY','19:15–19:45 — Int Math: Investigation approach practice 📚✅'], completed:[], note:'' },
+    '2026-05-17': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45','14:00–22:30'], planned:['10:00–10:45 — Int Math P6: Investigation past paper ⚠️ EXAM TOMORROW','14:00–17:00 — Int Math P4: Full timed past paper (with calc) + review ⚠️ EXAM TOMORROW','17:00–19:00 — Biology: Modules 1–5 — theory, diagrams, definitions 📚✅','19:00–21:00 — Biology: Modules 6–10 — MCQ practice 📚✅','21:00–22:00 — Biology ATP: Lab techniques, results tables 📚✅'], completed:[], note:'' },
+    '2026-05-18': { dayOfWeek:'Monday',    status:'upcoming', examOrTest:'EXAMS: Int Math P6 (Investigation) · Int Math P4 (With Calculator)', freeWindows:['Afternoon–evening'], planned:['Morning — EXAMS: Int Math P6 + P4','Afternoon — Biology: All 10 modules, key processes 📚✅ EXAM IN 2 DAYS','Evening — Biology ATP: Experiments, safety, results 📚✅'], completed:[], note:'' },
+    '2026-05-19': { dayOfWeek:'Tuesday',   status:'upcoming', note:'No exam — full Biology revision day', freeWindows:['All day until 19:45','21:15–22:30'], planned:['10:00–12:00 — Biology: Modules 1–5 — MCQ + past paper 📚✅ EXAM TOMORROW','13:00–15:00 — Biology: Modules 6–10 — structured questions + ATP 📚✅','15:00–17:00 — Biology: Full past paper timed (P4 theory) 📚✅','17:00–19:00 — Biology: Mark + revise weak areas, key diagrams 📚✅','21:15–22:30 — Biology: P2 MCQ flashcards + P6 practical skills 📚✅'], completed:[], note:'' },
+    '2026-05-20': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'EXAMS: Biology P4 · Biology P2 (MCQ) · Biology P6 — LAST EXAM 🎉', freeWindows:['Afternoon — all done!'], planned:['Morning — EXAMS: Biology P4 + P2 + P6','Afternoon — 🎉 All IGCSE exams complete! Rest and celebrate.'], completed:[], note:'Last exam day!' },
+  },
+};
+</script>
+
+<!-- ════════════════════════════════ REACT ════════════════════════════════ -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ── Today (IST-safe) ─────────────────────────────────────────────────── */
+function getToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+const TODAY = getToday();
+
+/* ── Time helpers ─────────────────────────────────────────────────────── */
+function toMin(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+function fromMin(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+function durLabel(start, end) {
+  const d = toMin(end) - toMin(start);
+  if (d <= 0) return '';
+  const h = Math.floor(d / 60), m = d % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} hr`;
+  return `${h} hr ${m} min`;
+}
+
+/* ── Short date ───────────────────────────────────────────────────────── */
+function fmtShort(ds) {
+  const [,mo,dy] = ds.split('-');
+  const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(dy)} ${months[parseInt(mo)]}`;
+}
+
+/* ── Parse "16:00–17:00 — label" or "Morning — label" ────────────────── */
+function parseItem(text) {
+  const dash = text.indexOf(' — ');
+  if (dash === -1) return { time: '', label: text };
+  return { time: text.slice(0, dash), label: text.slice(dash + 3) };
+}
+
+/* ── Subject colours ──────────────────────────────────────────────────── */
+const SC = {
+  addmath:  { bg:'#FFF0EB', border:'#E05C20', text:'#A03010', dot:'#E05C20' },
+  intmath:  { bg:'#F0EEFF', border:'#8E7DC8', text:'#4A3A90', dot:'#8E7DC8' },
+  englit:   { bg:'#E0F7F7', border:'#2C9898', text:'#1A6868', dot:'#2C9898' },
+  english:  { bg:'#E8F7F7', border:'#3AADAD', text:'#1E7878', dot:'#3AADAD' },
+  economics:{ bg:'#FFFAE0', border:'#C8A000', text:'#6A5000', dot:'#C8A000' },
+  physics:  { bg:'#E8F2FC', border:'#4A90D9', text:'#1E508A', dot:'#4A90D9' },
+  chemistry:{ bg:'#FEF3E8', border:'#E8964A', text:'#8A4A10', dot:'#E8964A' },
+  biology:  { bg:'#E8F5EC', border:'#5BAD6F', text:'#2A6A38', dot:'#5BAD6F' },
+  french:   { bg:'#FDE8EF', border:'#D96B8C', text:'#8A2848', dot:'#D96B8C' },
+  marathi:  { bg:'#F0F0F0', border:'#A0A0A0', text:'#404040', dot:'#A0A0A0' },
+  homework: { bg:'#F5F5F5', border:'#BBBBBB', text:'#444444', dot:'#AAA'    },
+  meal:     { bg:'#FDF5E6', border:'#D4B896', text:'#7A5010', dot:'#D4B896' },
+  rest:     { bg:'#EFEFEF', border:'#CCCCCC', text:'#666666', dot:'#CCC'    },
+  exam:     { bg:'#FFE8E8', border:'#C0392B', text:'#700000', dot:'#C0392B' },
+  testitem: { bg:'#FFF0E0', border:'#E05C20', text:'#703010', dot:'#E05C20' },
+  meeting:  { bg:'#F5EEFF', border:'#9B59B6', text:'#5A2A80', dot:'#9B59B6' },
+  debate:   { bg:'#E8F5F0', border:'#6EB5A0', text:'#2A6050', dot:'#6EB5A0' },
+  default:  { bg:'#F8F8F8', border:'#CCC',    text:'#555',    dot:'#BBB'    },
+};
+
+function detectSubject(text) {
+  const t = text.toLowerCase();
+  if (t.includes('add math'))                                   return 'addmath';
+  if (t.includes('int math'))                                   return 'intmath';
+  if (t.includes('english lit') || t.includes('eng lit'))      return 'englit';
+  if (t.includes('english language') || t.includes('eng lang'))return 'english';
+  if (t.includes('economics') || t.includes('eco'))            return 'economics';
+  if (t.includes('physics'))                                    return 'physics';
+  if (t.includes('chemistry'))                                  return 'chemistry';
+  if (t.includes('biology'))                                    return 'biology';
+  if (t.includes('french'))                                     return 'french';
+  if (t.includes('marathi') || t.includes('सूचना'))            return 'marathi';
+  if (t.includes('homework'))                                   return 'homework';
+  if (t.includes('lunch') || t.includes('dinner') || t.includes('meal')) return 'meal';
+  if (t.includes('rest') || t.includes('celebrate') || t.includes('break')) return 'rest';
+  if (t.includes('exam:') || t.startsWith('morning — exam'))   return 'exam';
+  if (t.includes('test:') || t.startsWith('morning — test'))   return 'testitem';
+  if (t.includes('meeting'))                                    return 'meeting';
+  if (t.includes('debate'))                                     return 'debate';
+  return 'default';
+}
+
+/* ── Study tracker data ───────────────────────────────────────────────── */
+const STUDY_TARGETS = {
+  lastUpdated: '2026-04-07',
+  tests: [
+    { id:'intmath-mensuration',     subject:'Int Math',    topic:'Mensuration',                    dateLabel:'Fri 10 Apr', date:'2026-04-10', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
+    { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
+    { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 & 21',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:4,   completedHrs:0,  sessions:[] },
+    { id:'french-rw',               subject:'French',      topic:'Reading & Writing',              dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'B',   targetHrs:2.5, completedHrs:0,  sessions:[] },
+    { id:'addmath-test',            subject:'Add Math',    topic:'Full syllabus',                  dateLabel:'Thu 16 Apr', date:'2026-04-16', grade:'D',   targetHrs:4,   completedHrs:0,  sessions:[] },
+    { id:'biology-test',            subject:'Biology',     topic:'Full syllabus',                  dateLabel:'Fri 17 Apr', date:'2026-04-17', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
+    { id:'physics-practicals',      subject:'Physics',     topic:'Practicals (ATP)',               dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
+    { id:'physics-light',           subject:'Physics',     topic:'Light (Rays & Waves)',           dateLabel:'Thu 23 Apr', date:'2026-04-23', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
+    { id:'chemistry-periodic-stoich',subject:'Chemistry',  topic:'Periodic table + Stoichiometry',dateLabel:'Fri 24 Apr', date:'2026-04-24', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
+  ],
+  exams: [
+    { id:'french-speaking-exam',    subject:'French Speaking',  topic:'Oral — all 5 topic areas',              dateLabel:'Apr 29–30', date:'2026-04-29', grade:'B',   targetHrs:5,  completedHrs:0, sessions:[] },
+    { id:'english-language-exam',   subject:'English Language', topic:'P1 Reading + P2 Writing',               dateLabel:'May 6+12',  date:'2026-05-06', grade:'C',   targetHrs:6,  completedHrs:0, sessions:[] },
+    { id:'english-lit-exam',        subject:'English Lit',      topic:'Drama + Poetry + Prose',                dateLabel:'May 6+11',  date:'2026-05-06', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },
+    { id:'addmath-exam',            subject:'Add Math',         topic:'P1 (No Calc) + P2 (With Calc)',         dateLabel:'May 6+11',  date:'2026-05-06', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },
+    { id:'intmath-exam',            subject:'Int Math',         topic:'P2 (No Calc) + P4 (Calc) + P6 (Inv.)', dateLabel:'May 7+18',  date:'2026-05-07', grade:'A',   targetHrs:5,  completedHrs:0, sessions:[] },
+    { id:'economics-exam',          subject:'Economics',        topic:'P1 MCQ + P2 Structured Questions',      dateLabel:'May 8',     date:'2026-05-08', grade:'D',   targetHrs:10, completedHrs:0, sessions:[] },
+    { id:'marathi-exam',            subject:'Marathi',          topic:'Writing + Comprehension + Poem',        dateLabel:'May 11',    date:'2026-05-11', grade:'P/F', targetHrs:3,  completedHrs:0, sessions:[] },
+    { id:'french-written-exam',     subject:'French Written',   topic:'P1 Listening + P2 Reading + P4 Writing',dateLabel:'May 12+15', date:'2026-05-12', grade:'B',   targetHrs:4,  completedHrs:0, sessions:[] },
+    { id:'physics-exam',            subject:'Physics',          topic:'P4 Theory + P6 ATP + P2 MCQ',           dateLabel:'May 13+15', date:'2026-05-13', grade:'C',   targetHrs:7,  completedHrs:0, sessions:[] },
+    { id:'chemistry-exam',          subject:'Chemistry',        topic:'P4 Theory + P2 MCQ + P6 ATP',           dateLabel:'May 14',    date:'2026-05-14', grade:'C',   targetHrs:7,  completedHrs:0, sessions:[] },
+    { id:'biology-exam',            subject:'Biology',          topic:'P4 Theory + P2 MCQ + P6 ATP',           dateLabel:'May 20',    date:'2026-05-20', grade:'A',   targetHrs:5,  completedHrs:0, sessions:[] },
+  ],
+};
+
+/* ── Build unified timeline for a day ─────────────────────────────────── */
+function buildTimeline(dayOfWeek, plannedItems) {
+  const tuitionBlocks = TUITION_SCHEDULE[dayOfWeek] || [];
+  const items = [];
+
+  // Add tuition / travel / meal blocks
+  tuitionBlocks.forEach(b => {
+    items.push({
+      startMin: toMin(b.start),
+      endMin:   b.end ? toMin(b.end) : toMin(b.start) + 15,
+      type:     b.type,
+      emoji:    b.emoji,
+      label:    b.label,
+      dotColor: b.dotColor,
+      bg:       b.bg || null,
+      isTuition: true,
+    });
+  });
+
+  // Add planned study items
+  plannedItems.forEach(p => {
+    const { time, label } = parseItem(p);
+    const rangeMatch = time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+    const subj = detectSubject(p);
+    const c    = SC[subj];
+    if (rangeMatch) {
+      items.push({
+        startMin:  toMin(rangeMatch[1]),
+        endMin:    toMin(rangeMatch[2]),
+        type:      'study',
+        emoji:     '📖',
+        label,
+        dotColor:  c.dot,
+        bg:        c.bg,
+        borderColor: c.border,
+        textColor: c.text,
+        isTuition: false,
+        full:      p,
+      });
+    } else {
+      // No time — show as a note at the top
+      items.push({ startMin:-1, endMin:-1, type:'note', label: p, isTuition:false, dotColor:'#DDD' });
+    }
+  });
+
+  items.sort((a, b) => a.startMin - b.startMin);
+  return items;
+}
+
+/* ── Subject pill colours for test strip ─────────────────────────────── */
+const PILL = {
+  'Int Math':   { bg:'#F0EEFF', border:'#8E7DC8', text:'#4A3A90' },
+  'Chemistry':  { bg:'#FEF3E8', border:'#E8964A', text:'#8A4A10' },
+  'Economics':  { bg:'#FFFAE0', border:'#C8A000', text:'#6A5000' },
+  'French':     { bg:'#FDE8EF', border:'#D96B8C', text:'#8A2848' },
+  'Add Math':   { bg:'#FFF0EB', border:'#E05C20', text:'#A03010' },
+  'Biology':    { bg:'#E8F5EC', border:'#5BAD6F', text:'#2A6A38' },
+  'Physics':    { bg:'#E8F2FC', border:'#4A90D9', text:'#1E508A' },
+};
+
+/* ══════════════════════ COMPONENTS ══════════════════════ */
+
+function TrendIcon({ trend }) {
+  if (trend === 'improving' || trend === 'strong') return <span className="trend-up">↑</span>;
+  if (trend === 'dropped') return <span className="trend-dn">↓↓</span>;
+  if (trend === 'steady')  return <span className="trend-st">→</span>;
+  return null;
+}
+
+function GradeProfile() {
+  const gc = g => ({ A:'gA',B:'gB',C:'gC',D:'gD' }[g] || 'gP');
+  const entries = Object.entries(DATA.gradeProfile).sort((a,b) => a[1].priority - b[1].priority);
+  return (
+    <div className="card">
+      <div className="card-header">Grade Profile · Half-Yearly</div>
+      {entries.map(([s, info]) => (
+        <div className="grade-item" key={s}>
+          <span className="grade-subj">{s}</span>
+          <span className="grade-pct">{info.pct != null ? `${info.pct}%` : '—'}</span>
+          <span className={`grade-badge ${gc(info.grade)}`}>{info.grade}</span>
+          <TrendIcon trend={info.trend} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HowTo() {
+  return (
+    <div className="howto">
+      <strong>📝 How to update your plan:</strong> Just tell Claude each day what you did, didn't do, or want to study. Claude will update both this file and daily_log.json for you.
+      <br/>Example: <em>"Today I did the Economics notes but skipped Add Math. Tomorrow I want to focus on Physics."</em>
+    </div>
+  );
+}
+
+function Alerts() {
+  return DATA.alerts.map((a, i) => (
+    <div key={i} className={`alert ${a.level === 'WARNING' ? 'alert-warn' : 'alert-reminder'}`}>
+      <div className="alert-level">{a.level === 'WARNING' ? '⚠️ Warning' : '📌 Reminder'}</div>
+      <div className="alert-msg">{a.message}</div>
+      <div className="alert-action">→ {a.action}</div>
+    </div>
+  ));
+}
+
+function TestsStrip() {
+  return (
+    <div className="card" style={{marginBottom:12}}>
+      <div className="card-header">Upcoming School Tests</div>
+      <div className="tests-scroll">
+        {DATA.upcomingTests.map((t, i) => {
+          const c = PILL[t.subject] || { bg:'#F5F5F5', border:'#CCC', text:'#555' };
+          const rc = t.readyStatus === 'READY' ? 'ready-OK' : t.readyStatus === 'IN PROGRESS' ? 'ready-IP' : 'ready-NS';
+          return (
+            <div key={i} className="test-pill" style={{background:c.bg, borderColor:c.border}}>
+              <div className="test-subj"  style={{color:c.text}}>{t.subject}</div>
+              <div className="test-topic" style={{color:c.text}}>{t.topic}</div>
+              <div className="test-date"  style={{color:c.text}}>{fmtShort(t.date)}</div>
+              <div className={rc}>{t.readyStatus === 'NOT STARTED' ? '● Not started' : t.readyStatus === 'IN PROGRESS' ? '◑ In progress' : '✓ Ready'}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── Timeline item ────────────────────────────────────────────────────── */
+function TlItem({ item, isLast }) {
+  const isTuition = item.isTuition;
+  const isTravel  = item.type === 'travel';
+  const isNote    = item.startMin === -1;
+
+  if (isNote) {
+    return (
+      <div style={{padding:'5px 0 3px', fontSize:11.5, color:'#888', fontStyle:'italic', borderLeft:'2px solid #EEE', paddingLeft:10, marginBottom:4}}>
+        {item.label}
+      </div>
+    );
+  }
+
+  const dur = item.endMin > item.startMin ? durLabel(fromMin(item.startMin), fromMin(item.endMin)) : '';
+
+  // Background pill for non-travel items
+  const pillStyle = (!isTravel && item.bg) ? {
+    background: item.bg,
+    borderLeft: `3px solid ${item.dotColor}`,
+    borderRadius: 6,
+    padding: '4px 8px',
+    marginBottom: 1,
+  } : {};
+
+  return (
+    <div className={`tl-item tl-${isTravel ? 'travel' : item.type}`}>
+      <div className="tl-time">
+        {fromMin(item.startMin)}
+        {!isTravel && <><br/><span style={{fontSize:9, color:'#CCC'}}>{fromMin(item.endMin)}</span></>}
+      </div>
+      <div className="tl-spine">
+        <div className="tl-dot" style={{background: item.dotColor || '#CCC'}} />
+        {!isLast && <div className="tl-line" />}
+      </div>
+      <div className="tl-body" style={{paddingBottom: isLast ? 0 : 4}}>
+        <div style={pillStyle}>
+          <div className="tl-label" style={item.textColor ? {color: item.textColor} : {}}>
+            {item.emoji ? `${item.emoji} ` : ''}{isTravel ? item.label : (isTuition ? item.label : item.label)}
+          </div>
+          {!isTravel && dur && <div className="tl-dur">{dur}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Day card ─────────────────────────────────────────────────────────── */
+function DayCard({ dateStr, day }) {
+  const isToday = dateStr === TODAY;
+  const isPast  = dateStr < TODAY;
+  const [open, setOpen] = useState(isToday || !isPast);
+
+  const timeline = buildTimeline(day.dayOfWeek, day.planned || []);
+  const studyItems = timeline.filter(i => !i.isTuition && i.startMin !== -1);
+  const done = (day.completed || []).length;
+  const total = studyItems.length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  const statusBadge = () => {
+    if (day.status === 'missed')  return <span className="badge b-missed">🔴 Missed</span>;
+    if (day.status === 'done')    return <span className="badge b-done">🟢 Done</span>;
+    if (day.status === 'partial') return <span className="badge b-partial">🟡 Partial</span>;
+    return <span className="badge b-up">Upcoming</span>;
+  };
+
+  const examBadge = () => {
+    if (!day.examOrTest) return null;
+    const isExam = day.examOrTest.toUpperCase().startsWith('EXAM');
+    return <span className={`badge ${isExam ? 'b-exam' : 'b-test'}`}>{day.examOrTest}</span>;
+  };
+
+  const specialBadge = () => {
+    if (day.note === 'STUDY LEAVE — no school')  return <span className="badge b-sl">Study Leave</span>;
+    if ((day.note||'').toLowerCase().includes('holiday')) return <span className="badge b-hol">🎌 Holiday</span>;
+    if (day.note === 'Last regular school day')  return <span className="badge b-up">Last School Day</span>;
+    return null;
+  };
+
+  const cardClass = ['day-card', isToday ? 'today' : '', day.status === 'missed' ? 'missed' : ''].join(' ').trim();
+
+  return (
+    <div className={cardClass} id={`day-${dateStr}`}>
+      <div className="day-header" onClick={() => setOpen(o => !o)}>
+        <div>
+          <div className="day-date">{fmtShort(dateStr)}</div>
+          <div className="day-dname">{day.dayOfWeek}</div>
+        </div>
+        <div className="badges">
+          {isToday && <span className="badge b-today">TODAY</span>}
+          {statusBadge()}
+          {examBadge()}
+          {specialBadge()}
+        </div>
+        <span className={`chevron ${open ? 'open' : ''}`}>▶</span>
+      </div>
+
+      {total > 0 && (
+        <div className="prog-wrap">
+          <div className="prog-fill" style={{width:`${pct}%`, background: pct===100?'#5BAD6F':pct>50?'#F0C030':'#4A90D9'}} />
+        </div>
+      )}
+
+      {open && (
+        <div className="day-body">
+          {day.freeWindows && day.freeWindows.length > 0 && (
+            <div className="free-win">🟢 Free windows: {day.freeWindows.join(' · ')}</div>
+          )}
+          {day.carriedForward && day.carriedForward.length > 0 && (
+            <>
+              <div className="sec-label">Carried Forward</div>
+              {day.carriedForward.map((c,i) => <div key={i} className="cf-item">↪ {c}</div>)}
+            </>
+          )}
+          {timeline.length > 0 && (
+            <>
+              <div className="sec-label" style={{paddingTop:12}}>Full Day Schedule  <span style={{color:'#CCC',fontWeight:400,textTransform:'none',letterSpacing:0}}>— tuition, travel, meals + study</span></div>
+              <div className="timeline">
+                {timeline.map((item, i) => <TlItem key={i} item={item} isLast={i === timeline.length - 1} />)}
+              </div>
+            </>
+          )}
+          {day.note && !['Last regular school day','Public Holiday','PUBLIC HOLIDAY','STUDY LEAVE — no school','Last exam day!'].includes(day.note) && (
+            <div className="day-note">{day.note}</div>
+          )}
+          {day.note === 'Last exam day!' && (
+            <div style={{textAlign:'center',padding:'10px 0',color:'#5BAD6F',fontWeight:700,fontSize:13}}>🎉 All exams done — celebrate!</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Study Tracker ────────────────────────────────────────────────────── */
+function gradeColor(g) {
+  if (g === 'A') return { fg:'#2A6A38', bg:'#E8F5EC' };
+  if (g === 'B') return { fg:'#1E508A', bg:'#E8F2FC' };
+  if (g === 'C') return { fg:'#7A5F00', bg:'#FFFAE0' };
+  if (g === 'D') return { fg:'#A03010', bg:'#FFE8E0' };
+  return           { fg:'#505050', bg:'#F0F0F0' };
+}
+
+function barColor(pct) {
+  if (pct >= 100) return '#5BAD6F';
+  if (pct >= 60)  return '#F0C030';
+  return '#E05C20';
+}
+
+function TrackerRow({ item }) {
+  const pct  = item.targetHrs > 0 ? Math.min(100, Math.round(item.completedHrs / item.targetHrs * 100)) : 0;
+  const done = item.completedHrs >= item.targetHrs;
+  const gc   = gradeColor(item.grade);
+  const rem  = Math.max(0, item.targetHrs - item.completedHrs);
+
+  return (
+    <div className="tracker-row">
+      <span className="tracker-subject" style={{color: item.grade === 'D' ? '#A03010' : '#1A2535'}}>
+        {item.subject}
+      </span>
+      <span className="tracker-topic">{item.topic}</span>
+      <span className="tracker-date">{item.dateLabel}</span>
+      <span className="tracker-grade-badge" style={{color:gc.fg, background:gc.bg}}>{item.grade}</span>
+      <div className="tracker-bar-wrap">
+        <div className="tracker-bar-fill" style={{width:`${pct}%`, background:barColor(pct)}} />
+      </div>
+      <span className="tracker-hrs" style={{color: done ? '#5BAD6F' : rem <= 1 ? '#F0A500' : '#666'}}>
+        {item.completedHrs}/{item.targetHrs} hrs
+        {done && <span className="tracker-done-badge">✓</span>}
+        {!done && <span style={{fontSize:9, color:'#BBB', fontWeight:400}}> ({rem} left)</span>}
+      </span>
+      {item.sessions && item.sessions.length > 0 && (
+        <span style={{fontSize:9.5, color:'#BBB', fontStyle:'italic', marginLeft:4}}>
+          Last: {item.sessions[item.sessions.length - 1].date}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function StudyTracker() {
+  const [open, setOpen] = useState(true);
+  const { tests, exams } = STUDY_TARGETS;
+
+  const totalTestTarget    = tests.reduce((s,t) => s + t.targetHrs, 0);
+  const totalTestDone      = tests.reduce((s,t) => s + t.completedHrs, 0);
+  const totalExamTarget    = exams.reduce((s,e) => s + e.targetHrs, 0);
+  const totalExamDone      = exams.reduce((s,e) => s + e.completedHrs, 0);
+  const totalTarget        = totalTestTarget + totalExamTarget;
+  const totalDone          = totalTestDone + totalExamDone;
+  const totalRemaining     = totalTarget - totalDone;
+  const overallPct         = totalTarget > 0 ? Math.round(totalDone / totalTarget * 100) : 0;
+
+  const dGradeItems = [...tests, ...exams].filter(i => i.grade === 'D');
+  const dDone  = dGradeItems.reduce((s,i) => s + i.completedHrs, 0);
+  const dTotal = dGradeItems.reduce((s,i) => s + i.targetHrs, 0);
+
+  return (
+    <div className="card" style={{marginBottom:12}}>
+      <div className="tracker-header" onClick={() => setOpen(o => !o)}>
+        <div style={{display:'flex', alignItems:'center', gap:10}}>
+          <span style={{fontSize:10.5, fontWeight:800, textTransform:'uppercase', letterSpacing:0.8, color:'#777'}}>
+            Study Hours Tracker
+          </span>
+          <span style={{fontSize:10, color:'#AAA'}}>— updated {STUDY_TARGETS.lastUpdated}</span>
+        </div>
+        <div style={{display:'flex', alignItems:'center', gap:14}}>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:13, fontWeight:800, color: overallPct >= 80 ? '#5BAD6F' : overallPct >= 40 ? '#F0A500' : '#E05C20'}}>
+              {totalDone}/{totalTarget} hrs
+            </div>
+            <div style={{fontSize:9.5, color:'#BBB'}}>{totalRemaining} hrs remaining</div>
+          </div>
+          <span style={{color:'#CCC', fontSize:11, transition:'transform 0.2s', display:'inline-block', transform: open ? 'rotate(90deg)' : 'none'}}>▶</span>
+        </div>
+      </div>
+
+      {open && (
+        <>
+          {/* ── Summary stats ── */}
+          <div className="tracker-summary" style={{borderTop:'1px solid #F5F5F5', paddingTop:12}}>
+            <div className="tracker-stat">
+              <div className="tracker-stat-val" style={{color:'#1A2535'}}>{totalDone}</div>
+              <div className="tracker-stat-lbl">hrs done</div>
+            </div>
+            <div className="tracker-stat">
+              <div className="tracker-stat-val" style={{color:'#4A90D9'}}>{totalRemaining}</div>
+              <div className="tracker-stat-lbl">hrs left</div>
+            </div>
+            <div className="tracker-stat">
+              <div className="tracker-stat-val" style={{color: overallPct >= 70 ? '#5BAD6F' : '#E05C20'}}>{overallPct}%</div>
+              <div className="tracker-stat-lbl">complete</div>
+            </div>
+            <div style={{flex:1, display:'flex', alignItems:'center', paddingLeft:8}}>
+              <div style={{flex:1, height:8, background:'#F0F0F0', borderRadius:4, overflow:'hidden'}}>
+                <div style={{height:'100%', width:`${overallPct}%`, background: overallPct>=80?'#5BAD6F':overallPct>=40?'#F0C030':'#E05C20', borderRadius:4, transition:'width 0.4s'}} />
+              </div>
+            </div>
+            <div className="tracker-stat" style={{borderLeft:'1px solid #F0F0F0', paddingLeft:14}}>
+              <div className="tracker-stat-val" style={{color:'#E05C20'}}>{Math.round(dDone)}/{dTotal}</div>
+              <div className="tracker-stat-lbl">🔴 D-grade hrs</div>
+            </div>
+          </div>
+
+          {/* ── Tests ── */}
+          <div className="tracker-section-label">School Tests</div>
+          {tests.map(t => <TrackerRow key={t.id} item={t} />)}
+
+          {/* ── Exams ── */}
+          <div className="tracker-section-label" style={{marginTop:4}}>IGCSE Exams</div>
+          {exams.map(e => <TrackerRow key={e.id} item={e} />)}
+
+          <div style={{padding:'8px 16px', fontSize:10.5, color:'#AAA', fontStyle:'italic', borderTop:'1px solid #F8F8F8'}}>
+            📝 Tell Claude what you studied today — hours update automatically
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ── App ──────────────────────────────────────────────────────────────── */
+function App() {
+  const entries = Object.entries(DATA.days).sort(([a],[b]) => a.localeCompare(b));
+
+  useEffect(() => {
+    setTimeout(() => {
+      const el = document.getElementById(`day-${TODAY}`);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 350);
+  }, []);
+
+  const d = new Date();
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const todayStr = `${dayNames[d.getDay()]}, ${fmtShort(TODAY)}`;
+
+  return (
+    <>
+      <div className="header">
+        <div>
+          <div className="header-title">Alissa's Study Planner</div>
+          <div className="header-sub">Grade IX IGCSE · Hill Spring International School</div>
+        </div>
+        <div className="header-date">{todayStr}</div>
+      </div>
+
+      <div className="layout">
+        <div className="sidebar">
+          <GradeProfile />
+        </div>
+        <div className="main">
+          <HowTo />
+          <Alerts />
+          <TestsStrip />
+          <StudyTracker />
+          <div className="phase-div">School Test Phase · Apr 6 – Apr 28</div>
+          {entries.map(([ds, day]) => (
+            <React.Fragment key={ds}>
+              {ds === '2026-04-29' && <div className="phase-div">Exam Phase · Apr 29 – May 20</div>}
+              <DayCard dateStr={ds} day={day} />
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      <button className="today-btn" onClick={() => {
+        const el = document.getElementById(`day-${TODAY}`);
+        if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+      }}>⬆ Today</button>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

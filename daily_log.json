@@ -1,0 +1,741 @@
+{
+  "meta": {
+    "lastUpdated": "2026-04-06",
+    "student": "Alissa Saurin Jhaveri",
+    "grade": "IX",
+    "school": "Hill Spring International School",
+    "note": "Update this file daily by telling Claude what you did/didn't do. Claude will update it for you."
+  },
+
+  "gradeProfile": {
+    "Add Math":          { "grade": "D", "pct": 63.91, "priority": 1, "trend": "improving", "color": "#E05C20" },
+    "Economics":         { "grade": "D", "pct": 63.42, "priority": 1, "trend": "dropped",   "color": "#E05C20" },
+    "English Lit":       { "grade": "D", "pct": 63.93, "priority": 1, "trend": "dropped",   "color": "#E05C20" },
+    "English Language":  { "grade": "C", "pct": 71.29, "priority": 2, "trend": "steady",    "color": "#F0C030" },
+    "Physics":           { "grade": "C", "pct": 67.84, "priority": 2, "trend": "improving", "color": "#F0C030" },
+    "Chemistry":         { "grade": "C", "pct": 69.58, "priority": 2, "trend": "improving", "color": "#F0C030" },
+    "French":            { "grade": "B", "pct": 83.82, "priority": 3, "trend": "strong",    "color": "#5BAD6F" },
+    "Biology":           { "grade": "A", "pct": 85.67, "priority": 4, "trend": "strong",    "color": "#4A90D9" },
+    "Int Math":          { "grade": "A", "pct": 86.61, "priority": 4, "trend": "strong",    "color": "#4A90D9" },
+    "Marathi":           { "grade": "P/F", "pct": null, "priority": 5, "trend": "passfail", "color": "#A0A0A0" }
+  },
+
+  "alerts": [
+    {
+      "date": "2026-04-06",
+      "level": "WARNING",
+      "message": "April 6 study session missed (homework). Chemistry Ch 1 + Int Math Mensuration review carried forward to Apr 7–8.",
+      "action": "Cover Chemistry Ch 1 (States of Matter) on Apr 8 evening. Int Math Mensuration practice on Apr 7–9 (Tue–Thu free blocks)."
+    },
+    {
+      "date": "2026-04-06",
+      "level": "REMINDER",
+      "message": "Int Math test on Apr 10 (Fri) — 4 days away. Mensuration (Ch 13–14) not yet started.",
+      "action": "Tue Apr 7 (4.5 hrs free) is the primary mensuration study block. Thu Apr 9 is the final review day."
+    }
+  ],
+
+  "upcomingTests": [
+    { "date": "2026-04-10", "subject": "Int Math",    "topic": "Mensuration",                       "daysAway": 4,  "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-13", "subject": "Chemistry",   "topic": "Separation techniques + Redox",     "daysAway": 7,  "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-15", "subject": "Economics",   "topic": "Ch 20 & 21",                        "daysAway": 9,  "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-15", "subject": "French",      "topic": "Reading & Writing",                 "daysAway": 9,  "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-16", "subject": "Add Math",    "topic": "Full syllabus",                     "daysAway": 10, "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-17", "subject": "Biology",     "topic": "Full syllabus",                     "daysAway": 11, "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-21", "subject": "Physics",     "topic": "Practicals",                        "daysAway": 15, "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-23", "subject": "Physics",     "topic": "Light (Rays & Waves)",              "daysAway": 17, "readyStatus": "NOT STARTED" },
+    { "date": "2026-04-24", "subject": "Chemistry",   "topic": "Periodic table + Stoichiometry",    "daysAway": 18, "readyStatus": "NOT STARTED" }
+  ],
+
+  "days": {
+
+    "2026-04-06": {
+      "dayOfWeek": "Monday",
+      "status": "missed",
+      "tuition": ["Economics 16:15–17:45", "Dinner 17:45–18:30", "Physics 18:30–21:00"],
+      "freeWindows": ["21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "21:00–22:00 — Int Math: Mensuration formulas review (Ch 13–14)",
+        "22:00–22:30 — Chemistry Ch 1: States of Matter — quick read"
+      ],
+      "completed": [],
+      "carriedForward": [
+        "Int Math: Mensuration formulas review",
+        "Chemistry: Ch 1 States of Matter"
+      ],
+      "note": "Had homework. No studying done.",
+      "behindAlert": true
+    },
+
+    "2026-04-07": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "freeWindows": ["16:00–19:00 (3 hrs)", "21:15–22:30 (1.25 hrs — after travel home)"],
+      "planned": [
+        "16:00–17:00 — English Lit: Key scenes + characters + quotes — A Midsummer Night's Dream 📚🔴",
+        "17:00–18:00 — Economics: Ch 20 & 21 — key terms, definitions, demand/supply diagrams ⚠️🔴",
+        "18:00–19:00 — Homework",
+        "21:15–21:45 — Online meeting (30 min)",
+        "21:45–22:30 — Homework"
+      ],
+      "completed": [],
+      "note": "Int Math saved for Thursday (2–3 hrs intensive). Eco + Eng Lit focus today."
+    },
+
+    "2026-04-08": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "freeWindows": ["17:45–18:30 (45 min)", "19:15–19:45 (30 min)", "21:15–22:30 (1.25 hrs)"],
+      "planned": [
+        "17:45–18:30 — Economics: Ch 20 & 21 — detailed notes, 8-mark essay structure ⚠️🔴",
+        "19:15–19:45 — Physics: Ch 7 Light — reflection + refraction overview 📚🟡",
+        "21:15–22:00 — Homework",
+        "22:00–22:30 — Economics: Key definitions flash review ⚠️🔴"
+      ],
+      "completed": [],
+      "note": "Eco + Physics focus. Int Math on Thursday."
+    },
+
+    "2026-04-09": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "freeWindows": ["16:00–19:30 (3.5 hrs)", "20:15–22:30 (2.25 hrs)"],
+      "planned": [
+        "16:00–17:00 — Homework",
+        "17:00–19:30 — Int Math: Mensuration — full 2.5 hr block: formulas, worked examples, past paper timed ⚠️ TEST TOMORROW",
+        "20:15–21:15 — Economics: Ch 20 & 21 — essay plans + key diagrams top-up ⚠️🔴",
+        "21:15–22:30 — Add Math: Functions + quadratics — exam prep 📚🔴"
+      ],
+      "completed": [],
+      "note": "Int Math crushed in one big session. Eco + Add Math in the evening."
+    },
+
+    "2026-04-10": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Int Math — Mensuration",
+      "tuition": ["Phys/Chem 16:15–19:00", "Dinner 19:00–19:45"],
+      "freeWindows": ["19:45–22:30 (2.75 hrs)"],
+      "planned": [
+        "Morning — TEST: Int Math Mensuration",
+        "19:45–20:45 — Chemistry: Separation techniques — past paper questions ⚠️",
+        "20:45–21:45 — Homework",
+        "21:45–22:30 — Chemistry: Redox reactions — practice problems ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-11": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — Chemistry: Separation + Redox — past paper questions timed ⚠️",
+        "14:45–15:45 — Homework (if any weekend HW)",
+        "15:45–17:00 — Chemistry: Lab tests — identification tests, experiments ⚠️",
+        "19:00–20:00 — Chemistry — flashcards + summary sheet ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-12": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — Chemistry: Full timed past paper (separation + redox) ⚠️ TEST TOMORROW",
+        "14:00–15:00 — Chemistry: Mark paper + revise all weak areas ⚠️",
+        "15:00–15:30 — Chemistry: Final summary notes ⚠️",
+        "15:30–16:30 — Homework",
+        "16:30–18:00 — Economics Ch 20 & 21: Read + detailed notes 📚🔴",
+        "18:00–20:00 — Add Math: Scan full syllabus, work through weak topics (functions, log/exp, calculus) 📚🔴",
+        "20:00–22:00 — English Lit: A Midsummer Night's Dream — key scenes, characters, quotes 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-13": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Chemistry — Separation techniques + Redox",
+      "tuition": ["Economics 16:15–17:45", "Dinner 17:45–18:30", "Physics 18:30–21:00"],
+      "freeWindows": ["21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "Morning — TEST: Chemistry (Separation + Redox)",
+        "21:00–22:00 — Homework",
+        "22:00–22:30 — Economics Ch 20 & 21: Key definitions review ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-14": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "tuition": ["Dinner 19:00–19:45", "Physics 20:00–21:00"],
+      "freeWindows": ["16:00–19:00 (3 hrs)", "21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "16:00–17:00 — Homework",
+        "17:00–19:00 — Economics Ch 20 & 21: Detailed revision, key terms, 8-mark essay practice ⚠️🔴 TEST TOMORROW",
+        "21:00–22:30 — French: Reading & Writing — full past paper timed practice ⚠️ TEST TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-15": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "examOrTest": "TESTS: Economics (Ch20-21) + French (Reading & Writing)",
+      "tuition": ["English 15:30–17:30", "Dinner 18:30–19:15", "Math 20:00–21:00"],
+      "freeWindows": ["17:30–18:30 (1 hr)", "19:15–20:00 (45 min)", "21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "Morning — TESTS: Economics + French",
+        "17:30–18:30 — Add Math: Full topic scan, note weakest areas ⚠️🔴 TEST TOMORROW",
+        "19:15–20:00 — Add Math: Functions + quadratics + polynomials practice ⚠️",
+        "21:00–22:00 — Homework",
+        "22:00–22:30 — Add Math: Log/exp + straight lines practice ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-16": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Add Math",
+      "tuition": ["Dinner 19:30–20:15"],
+      "freeWindows": ["16:00–19:30 (3.5 hrs)", "20:15–22:30 (2.25 hrs)"],
+      "planned": [
+        "Morning — TEST: Add Math",
+        "16:00–16:30 — Rest (two tests this week)",
+        "16:30–17:30 — Homework",
+        "17:30–19:30 — Biology: Modules 1–5 — rapid notes review ⚠️ TEST TOMORROW",
+        "20:15–22:30 — Biology: Modules 6–10 — rapid notes review ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-17": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Biology",
+      "tuition": ["Phys/Chem 16:15–19:00", "Dinner 19:00–19:45"],
+      "freeWindows": ["19:45–22:30 (2.75 hrs)"],
+      "planned": [
+        "Morning — TEST: Biology",
+        "19:45–20:45 — Homework",
+        "20:45–22:30 — Physics Practicals: ATP skills — experimental design, data recording, graph drawing, error analysis ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-18": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — Physics Practicals: Past paper ATP questions timed ⚠️",
+        "14:45–15:45 — Physics Practicals: Graph interpretation, uncertainty, experimental planning ⚠️",
+        "15:45–16:45 — Homework",
+        "16:45–17:00 — Physics Practicals: Review common mistakes ⚠️",
+        "19:00–20:00 — Add Math: Calculus — differentiation rules + practice 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-19": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — Physics Practicals: Full ATP past paper timed ⚠️ TEST IN 2 DAYS",
+        "14:00–15:00 — Physics Practicals: Mark + fix weak areas ⚠️",
+        "15:00–16:00 — Homework",
+        "16:00–18:00 — Physics Ch 7: Light — reflection, refraction, TIR, lenses, ray diagrams ⚠️",
+        "18:00–19:30 — Economics: Ch 1–3 full revision — demand/supply, PED/PES, market failure, firms 📚🔴",
+        "19:30–21:00 — English Lit: Poetry — all 8 poems, themes, techniques, 2 key quotes each 📚🔴",
+        "21:00–22:00 — Add Math: Integration + kinematics practice 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-20": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "tuition": ["Economics 16:15–17:45", "Dinner 17:45–18:30", "Physics 18:30–21:00"],
+      "freeWindows": ["21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "21:00–22:00 — Homework",
+        "22:00–22:30 — Physics Practicals: Quick review of experimental techniques ⚠️ TEST TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-21": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Physics Practicals",
+      "tuition": ["Dinner 19:00–19:45", "Physics 20:00–21:00"],
+      "freeWindows": ["16:00–19:00 (3 hrs)", "21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "Morning — TEST: Physics Practicals",
+        "16:00–17:00 — Homework",
+        "17:00–19:00 — Physics Light: Reflection, refraction, lenses — theory + ray diagram practice ⚠️",
+        "21:00–22:30 — Physics Light: Past paper questions on light ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-22": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "tuition": ["English 15:30–17:30", "Dinner 18:30–19:15", "Math 20:00–21:00"],
+      "freeWindows": ["17:30–18:30 (1 hr)", "19:15–20:00 (45 min)", "21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "17:30–18:30 — Physics Light: Full timed past paper section ⚠️ TEST TOMORROW",
+        "19:15–20:00 — Physics Light: Review mistakes, optics weak spots ⚠️",
+        "21:00–22:00 — Homework",
+        "22:00–22:30 — Chemistry: Periodic table — groups, trends overview ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-23": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Physics Light",
+      "tuition": ["Dinner 19:30–20:15"],
+      "freeWindows": ["16:00–19:30 (3.5 hrs)", "20:15–22:30 (2.25 hrs)"],
+      "planned": [
+        "Morning — TEST: Physics Light",
+        "16:00–17:00 — Homework",
+        "17:00–19:30 — Chemistry: Periodic table (groups 1, 7, 0; reactivity trends) + Stoichiometry (mole calculations, balancing equations) ⚠️ TEST TOMORROW",
+        "20:15–22:30 — Chemistry: Past paper questions — periodic table + stoichiometry timed ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-24": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "examOrTest": "TEST: Chemistry (Periodic table + Stoichiometry)",
+      "tuition": ["Phys/Chem 16:15–19:00", "Dinner 19:00–19:45"],
+      "freeWindows": ["19:45–22:30 (2.75 hrs)"],
+      "planned": [
+        "Morning — TEST: Chemistry (Periodic table + Stoichiometry)",
+        "19:45–20:45 — Homework",
+        "20:45–22:30 — French Speaking: Oral topics practice — everyday activities, personal life, world around us ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-25": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — French Speaking: Mock oral, pronunciation, structured responses ⚠️",
+        "14:45–15:45 — Homework",
+        "15:45–17:00 — English Lit: Prose — all 5 stories, key themes, characters, moments 📚🔴",
+        "19:00–20:00 — Add Math: Trig (exact values, identities), circular measure 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-26": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — French Speaking: Full mock oral, all 5 topic areas ⚠️",
+        "14:00–15:00 — Homework",
+        "15:00–17:00 — English Lit: Poetry — all 8 poems: themes, language techniques, 2 quotes each 📚🔴",
+        "17:00–19:00 — Add Math: Calculus — differentiation + integration full practice 📚🔴",
+        "19:00–20:30 — Economics: Essay practice — 8-mark structured answers (demand, firms, market failure) 📚🔴",
+        "20:30–22:00 — English Language: Comprehension + writer's effect + summary techniques 📚🟡"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-27": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "note": "Last regular school day",
+      "tuition": ["Economics 16:15–17:45", "Dinner 17:45–18:30", "Physics 18:30–21:00"],
+      "freeWindows": ["21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "21:00–22:00 — Homework",
+        "22:00–22:30 — French Speaking: Vocabulary list + key phrases review ⚠️"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-28": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "note": "STUDY LEAVE — no school. Physics tuition still applies.",
+      "tuition": ["Physics (study leave) 19:45–21:15 (blocked incl. travel)"],
+      "freeWindows": ["10:00–19:45 (9.75 hrs)", "21:15–22:30 (1.25 hrs)"],
+      "planned": [
+        "10:00–12:00 — French Speaking: Final mock oral, role-plays, all 5 topic areas ⚠️ EXAM TOMORROW",
+        "12:00–13:00 — Lunch",
+        "13:00–15:00 — English Lit: Drama — A Midsummer Night's Dream: key scenes Act 1–3, character quotes, themes 📚🔴",
+        "15:00–17:00 — Add Math: No-calculator techniques — log laws, differentiation, exact trig values 📚🔴",
+        "17:00–19:00 — Economics: Full topic summary + structured essay plans 📚🔴",
+        "21:15–22:30 — English Language: Writing genres — letter, speech, report, descriptive 📚🟡"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-29": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "examOrTest": "EXAM: French Speaking",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAM: French Speaking",
+        "Afternoon — English Lit: Prose texts — slow read of all 5 stories, note key quotes 📚🔴",
+        "Evening — Add Math: Functions + quadratics past paper (P1 no-calc style) 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-04-30": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "examOrTest": "EXAM: French Speaking (continued)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAM: French Speaking (continued)",
+        "Afternoon — Economics: Chapters 1–3 comprehensive revision (demand/supply, PED/PES, firms) 📚🔴",
+        "Evening — English Language: Reading comprehension timed practice 📚🟡"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-01": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "note": "PUBLIC HOLIDAY — full study day",
+      "tuition": [],
+      "freeWindows": ["All day"],
+      "planned": [
+        "10:00–12:00 — English Language: Comprehension + writer's effect practice 📚🟡",
+        "13:00–15:00 — English Lit: Drama + Prose texts 📚🔴",
+        "15:30–17:30 — Add Math P1: Functions, quadratics, log/exp, straight lines 📚🔴",
+        "19:00–21:00 — Add Math: Circular measure, trig, polynomials 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-02": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — Add Math: Trigonometry — identities, equations, past paper questions 📚🔴",
+        "14:45–16:45 — English Lit: Poetry — annotate all 8 poems, language + context 📚🔴",
+        "19:00–20:00 — Economics: MCQ practice + short-answer technique 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-03": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — English Language: Writing genres — newspaper, letter, speech, report 📚🟡",
+        "14:00–16:00 — Add Math: Calculus — differentiation + integration full past paper 📚🔴",
+        "16:00–18:00 — English Lit: Drama — A Midsummer Night's Dream: full re-read key scenes + essay plan 📚🔴",
+        "18:00–20:00 — Economics: Structured essay writing — 8-mark answers 📚🔴",
+        "20:00–22:00 — Int Math: Algebra + coordinate geometry refresher 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-04": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "tuition": ["Economics 16:15–17:45", "Dinner 17:45–18:30", "Physics 18:30–21:00"],
+      "freeWindows": ["21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "21:00–22:30 — English Language: All writing genres timed practice 📚🟡"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-05": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "tuition": ["Dinner 19:00–19:45", "Physics 20:00–21:00"],
+      "freeWindows": ["16:00–19:00 (3 hrs)", "21:00–22:30 (1.5 hrs)"],
+      "planned": [
+        "16:00–19:00 — Add Math: Full P1 past paper (no calculator, timed) + review 📚🔴 EXAM TOMORROW",
+        "21:00–22:30 — English Language: Final reading strategies + writer's effect vocabulary 📚🟡"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-06": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: English Language P1 (Reading) · English Literature Drama · Add Math P1 (No Calc)",
+      "tuition": [],
+      "freeWindows": ["Evening after exams"],
+      "planned": [
+        "Morning — EXAMS: English Lang P1 + English Lit Drama + Add Math P1",
+        "Night — Drama quotes + Eng Lang reading strategies + Add Math no-calc formula sheet (for any carry-over review)",
+        "Evening — Int Math: Algebra, coordinate geometry, sequences — no-calculator prep 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-07": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "examOrTest": "EXAM: International Math P2 (No Calculator)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAM: Int Math P2 (No Calc)",
+        "Afternoon — Economics: MCQ flashcards (P1 prep) + structured essay plans (P2 prep) 📚🔴 EXAM TOMORROW",
+        "Evening — Economics: Timed P2 essay practice 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-08": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: Economics P1 (MCQ) + Economics P2 (Structured Questions)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: Economics P1 + P2",
+        "Afternoon — English Lit: Poetry + Prose — revision for Eng Lit P1 (May 11) 📚🔴",
+        "Evening — Marathi: Prose, poem, grammar overview 📚⚪"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-09": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — English Lit: Poetry — all 8 poems annotated + Prose — 5 texts key moments 📚🔴",
+        "14:45–17:00 — English Lit: Drama + full exam essay plans 📚🔴",
+        "19:00–20:00 — Marathi: Prose, poem, grammar + सूचना लेखन practice 📚⚪"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-10": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — English Lit: Final poetry quotes + prose moments recap 📚🔴 EXAMS TOMORROW",
+        "14:00–17:00 — Add Math P2: Calculus past paper timed (with calculator) 📚🔴 EXAM TOMORROW",
+        "17:00–19:00 — Marathi: Grammar revision, सूचना लेखन, poem translation 📚⚪ EXAM TOMORROW",
+        "19:00–21:00 — English Lit: Poetry themes + quotes quick-fire review 📚🔴",
+        "21:00–22:00 — Add Math: Calc formulas + kinematics summary 📚🔴"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-11": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: English Literature P1 (Poetry & Prose) · Marathi · Add Math P2 (With Calculator)",
+      "tuition": [],
+      "freeWindows": ["Evening after exams"],
+      "planned": [
+        "Morning — EXAMS: Eng Lit P1 + Marathi + Add Math P2",
+        "Evening — English Language P2: Writing tasks — descriptive + argument 📚🟡 EXAM TOMORROW",
+        "Evening — French: Vocabulary all 5 topic areas + listening strategy 📚🟢 EXAM TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-12": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: English Language P2 · French Listening P1",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: Eng Lang P2 + French P1 (Listening)",
+        "Afternoon — Physics: All 7 chapters — theory notes, definitions, formulas 📚🟡 EXAM TOMORROW",
+        "Evening — Physics ATP: Lab skills, graph drawing, uncertainty, experimental design 📚🟡 EXAM TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-13": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: Physics P4 (Theory) · Physics P6 (ATP)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: Physics P4 + P6",
+        "Afternoon — Chemistry: Full syllabus — states, atoms, reactions, periodic table, acids/bases 📚🟡 EXAMS TOMORROW",
+        "Evening — Chemistry ATP: Experiments, identification tests, MCQ flashcards 📚🟡 EXAMS TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-14": {
+      "dayOfWeek": "Thursday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: Chemistry P4 (Theory) · Chemistry P2 (MCQ) · Chemistry P6 (ATP)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: Chemistry P4 + P2 + P6",
+        "Afternoon — French: Reading comprehension strategies + writing techniques 📚🟢 EXAMS TOMORROW",
+        "Evening — Physics MCQ: Key definitions all 7 chapters — quick flashcard review 📚🟡 EXAM TOMORROW"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-15": {
+      "dayOfWeek": "Friday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: French P2 (Reading) · French P4 (Writing) · Physics P2 (MCQ)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: French P2 + P4 + Physics MCQ",
+        "Afternoon — Int Math: Percentages, rates, coordinate geometry, sequences (with calc) 📚✅",
+        "Evening — Int Math: Investigation-style problems + P6 approach 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-16": {
+      "dayOfWeek": "Saturday",
+      "status": "upcoming",
+      "tuition": ["Math 10:00–11:30", "Lunch 12:30–13:00", "English 13:15–14:45", "French 17:00–19:00", "Debate 20:00–21:30"],
+      "freeWindows": ["11:30–12:30 (1 hr)", "14:45–17:00 (2.25 hrs)", "19:00–20:00 (1 hr)"],
+      "planned": [
+        "11:30–12:30 — Int Math: Algebra revision + simultaneous equations 📚✅",
+        "14:45–17:00 — Int Math: P4 (with calc) past paper timed + review 📚✅ EXAMS MONDAY",
+        "19:00–20:00 — Int Math: Investigation approach — read carefully, show all working, check units 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-17": {
+      "dayOfWeek": "Sunday",
+      "status": "upcoming",
+      "tuition": ["Physics 11:00–13:30", "Lunch 13:30–14:00"],
+      "freeWindows": ["10:00–11:00 (1 hr)", "14:00–22:30 (8.5 hrs)"],
+      "planned": [
+        "10:00–11:00 — Int Math P6: Investigation past paper + technique practice 📚✅ EXAM TOMORROW",
+        "14:00–17:00 — Int Math P4: Full timed past paper (with calc) + review 📚✅ EXAM TOMORROW",
+        "17:00–19:00 — Biology: Modules 1–5 — theory notes, key diagrams, definitions 📚✅ EXAM IN 3 DAYS",
+        "19:00–21:00 — Biology: Modules 6–10 — theory notes, MCQ practice 📚✅",
+        "21:00–22:00 — Biology ATP: Lab techniques, results tables, experimental design 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-18": {
+      "dayOfWeek": "Monday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: Int Math P6 (Investigation) · Int Math P4 (With Calculator)",
+      "tuition": [],
+      "freeWindows": ["Afternoon–evening free after exam"],
+      "planned": [
+        "Morning — EXAMS: Int Math P6 + P4",
+        "Afternoon — Biology: Full revision — all 10 modules, key processes, definitions 📚✅ EXAM IN 2 DAYS",
+        "Evening — Biology ATP: Experiments, safety, results analysis 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-19": {
+      "dayOfWeek": "Tuesday",
+      "status": "upcoming",
+      "note": "No exam today — full Biology revision day",
+      "tuition": ["Dinner 19:00–19:45", "Physics 20:00–21:00"],
+      "freeWindows": ["All day until 19:00", "21:00–22:30"],
+      "planned": [
+        "10:00–12:00 — Biology: Modules 1–5 — MCQ practice + past paper questions 📚✅ EXAM TOMORROW",
+        "13:00–15:00 — Biology: Modules 6–10 — structured questions + ATP techniques 📚✅",
+        "15:00–17:00 — Biology: Full past paper timed (P4 theory) 📚✅",
+        "17:00–19:00 — Biology: Mark paper + revise all weak areas, draw key diagrams 📚✅",
+        "21:00–22:30 — Biology: P2 MCQ flashcards + P6 practical skills 📚✅"
+      ],
+      "completed": [],
+      "note": ""
+    },
+
+    "2026-05-20": {
+      "dayOfWeek": "Wednesday",
+      "status": "upcoming",
+      "examOrTest": "EXAMS: Biology P4 (Theory) · Biology P2 (MCQ) · Biology P6 (ATP) — LAST EXAM",
+      "tuition": [],
+      "freeWindows": ["Afternoon — exams over!"],
+      "planned": [
+        "Morning — EXAMS: Biology P4 + P2 + P6",
+        "Afternoon — 🎉 Exams complete! Rest."
+      ],
+      "completed": [],
+      "note": "Last exam day — all IGCSE exams complete after this."
+    }
+
+  }
+}
