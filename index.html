@@ -374,12 +374,21 @@ const DATA = {
         '22:15–22:30 — Economics: Quick key definitions review ⚠️🔴',
       ], completed:[], note:'' },
 
-    '2026-04-14': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+    '2026-04-14': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['16:00–18:00 (2 hrs)','18:30–19:00 (30 min)','21:15–22:30 (1.25 hrs)'],
+      tuitionOverride:[
+        { type:'meeting', emoji:'💻', label:'Online Meeting',            start:'18:00', end:'18:30', dotColor:'#9B59B6' },
+        { type:'meal',    emoji:'🍽️', label:'Dinner',                   start:'19:00', end:'19:45', dotColor:'#D4B896' },
+        { type:'travel',  emoji:'🚶', label:'Travel to Physics tuition', start:'19:45', end:'20:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🔵', label:'Physics Tuition',           start:'20:00', end:'21:00', dotColor:'#4A90D9', subject:'Physics', bg:'#E8F2FC' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'21:00', end:'21:15', dotColor:'#CCC' },
+      ],
       planned:[
         '16:00–17:00 — Homework',
-        '17:00–19:00 — Economics: Ch 20 & 21 — detailed revision, key terms, 8-mark essay practice ⚠️🔴 (3–4 hrs total needed)',
+        '17:00–18:00 — Economics: Ch 20 & 21 — detailed revision, key terms, 8-mark essay practice ⚠️🔴',
+        '18:00–18:30 — 💻 Online Meeting',
+        '18:30–19:00 — Economics: Ch 20 & 21 continued ⚠️🔴',
         '21:15–22:30 — French: Reading & Writing — full past paper timed practice ⚠️ TEST TOMORROW',
-      ], completed:[], note:'' },
+      ], completed:[], note:'💻 Online meeting 6:00–6:30. Economics split around it.' },
 
     '2026-04-15': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TESTS: Economics (Ch20-21) + French (R&W)', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
       planned:[
