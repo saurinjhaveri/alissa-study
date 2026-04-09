@@ -275,7 +275,7 @@ const DATA = {
     { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:5,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
     { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',              daysAway:7,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
     { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:7,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
-    { date:'2026-04-16', subject:'Add Math',  topic:'Full syllabus',           daysAway:8,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:4 },
+    { date:'2026-04-21', subject:'Add Math',  topic:'Integration & Kinematics', daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
     { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
     { date:'2026-04-21', subject:'Physics',   topic:'Practicals',              daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
     { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',    daysAway:15, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
@@ -396,20 +396,19 @@ const DATA = {
     '2026-04-15': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TESTS: Economics (Ch20-21) + French (R&W)', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
       planned:[
         'Morning — TESTS: Economics + French',
-        '17:45–18:30 — Add Math: Full topic scan + note weakest areas ⚠️🔴 TEST TOMORROW',
-        '19:15–19:45 — Add Math: Functions + quadratics + polynomials ⚠️🔴',
+        '17:45–18:30 — Add Math: Integration — standard integrals, definite/indefinite, area under curve ⚠️🔴',
+        '19:15–19:45 — Add Math: Kinematics — displacement, velocity, acceleration using calculus ⚠️🔴',
         '21:15–22:15 — Homework',
-        '22:15–22:30 — Add Math: Log/exp quick review ⚠️🔴',
-      ], completed:[], note:'Only 2.5 hrs free on Wed. Add Math needs 3–4 hrs — Sunday Apr 12 is the main prep day.' },
+        '22:15–22:30 — Add Math: Integration + kinematics quick practice ⚠️🔴',
+      ], completed:[], note:'Add Math test postponed to Tue Apr 21 (integration + kinematics only). Start prep today.' },
 
-    '2026-04-16': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'TEST: Add Math', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
+    '2026-04-16': { dayOfWeek:'Thursday',  status:'upcoming', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
       planned:[
-        'Morning — TEST: Add Math',
-        '16:00–16:30 — Rest (two tests this week)',
-        '16:30–17:30 — Homework',
-        '17:30–19:30 — Biology: Modules 1–5 — rapid notes review (2–3 hrs total, A-grade) ⚠️',
-        '20:15–22:30 — Biology: Modules 6–10 — rapid notes review ⚠️',
-      ], completed:[], note:'' },
+        '16:00–17:00 — Homework',
+        '17:00–19:30 — Biology: Modules 1–5 — rapid notes review (A-grade) ⚠️',
+        '20:15–22:15 — Biology: Modules 6–10 — rapid notes review ⚠️',
+        '22:15–22:30 — Add Math: Integration past paper warm-up ⚠️🔴',
+      ], completed:[], note:'Add Math test moved to Apr 21 — extra prep time. Biology test still Apr 17.' },
 
     '2026-04-17': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Biology', freeWindows:['20:00–22:30 (2.5 hrs)'],
       planned:[
@@ -423,7 +422,7 @@ const DATA = {
         '11:45–12:30 — Physics Practicals: Past paper ATP questions timed ⚠️',
         '15:00–16:00 — Physics Practicals: Graph interpretation, uncertainty, planning ⚠️',
         '16:00–16:45 — Homework',
-        '19:15–19:45 — Add Math: Calculus — differentiation rules + practice 📚🔴',
+        '19:15–19:45 — Add Math: Integration + Kinematics — timed practice questions ⚠️🔴',
       ], completed:[], note:'' },
 
     '2026-04-19': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
@@ -439,17 +438,19 @@ const DATA = {
 
     '2026-04-20': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['21:15–22:30 (1.25 hrs)'],
       planned:[
-        '21:15–22:15 — Homework',
-        '22:15–22:30 — Physics Practicals: Quick review ⚠️ TEST TOMORROW',
-      ], completed:[], note:'' },
+        '21:15–21:45 — Add Math: Integration + Kinematics — final review ⚠️ TEST TOMORROW',
+        '21:45–22:15 — Physics Practicals: Quick review ⚠️ TEST TOMORROW',
+        '22:15–22:30 — Homework',
+      ], completed:[], note:'Two tests tomorrow — Add Math (integration + kinematics) + Physics Practicals.' },
 
-    '2026-04-21': { dayOfWeek:'Tuesday',   status:'upcoming', examOrTest:'TEST: Physics Practicals', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
+    '2026-04-21': { dayOfWeek:'Tuesday',   status:'upcoming', examOrTest:'TESTS: Physics Practicals + Add Math (Integration & Kinematics)', freeWindows:['16:00–19:00 (3 hrs)','21:15–22:30 (1.25 hrs)'],
       planned:[
-        'Morning — TEST: Physics Practicals',
-        '16:00–17:00 — Homework',
-        '17:00–19:00 — Physics Light: Reflection, refraction, lenses — theory + ray diagram practice ⚠️',
+        'Morning — TESTS: Physics Practicals + Add Math (Integration & Kinematics)',
+        '16:00–16:30 — Rest (two tests today)',
+        '16:30–17:30 — Homework',
+        '17:30–19:00 — Physics Light: Reflection, refraction, lenses — theory + ray diagram practice ⚠️',
         '21:15–22:30 — Physics Light: Past paper questions on light ⚠️',
-      ], completed:[], note:'' },
+      ], completed:[], note:'Two tests today. Rest first, then back to Physics Light prep.' },
 
     '2026-04-22': { dayOfWeek:'Wednesday', status:'upcoming', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
       planned:[
@@ -634,7 +635,7 @@ const STUDY_TARGETS = {
     { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 only',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:3,   completedHrs:1,  sessions:[{date:'Apr 8', hrs:1, note:'Ch 20 — key terms, definitions, diagrams'}] },
     { id:'french-rw',               subject:'French',      topic:'Reading & Writing',              dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'B',   targetHrs:2.5, completedHrs:0,  sessions:[] },
-    { id:'addmath-test',            subject:'Add Math',    topic:'Full syllabus',                  dateLabel:'Thu 16 Apr', date:'2026-04-16', grade:'D',   targetHrs:4,   completedHrs:0,  sessions:[] },
+    { id:'addmath-test',            subject:'Add Math',    topic:'Integration & Kinematics',       dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'D',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'biology-test',            subject:'Biology',     topic:'Full syllabus',                  dateLabel:'Fri 17 Apr', date:'2026-04-17', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
     { id:'physics-practicals',      subject:'Physics',     topic:'Practicals (ATP)',               dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'physics-light',           subject:'Physics',     topic:'Light (Rays & Waves)',           dateLabel:'Thu 23 Apr', date:'2026-04-23', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
