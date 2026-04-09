@@ -271,15 +271,15 @@ const DATA = {
   ],
 
   upcomingTests: [
-    { date:'2026-04-10', subject:'Int Math',  topic:'Coordinate Geometry',     daysAway:3,  readyStatus:'NOT STARTED' },
-    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:6,  readyStatus:'NOT STARTED' },
-    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',              daysAway:8,  readyStatus:'IN PROGRESS' },
-    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:8,  readyStatus:'NOT STARTED' },
-    { date:'2026-04-16', subject:'Add Math',  topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED' },
-    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:10, readyStatus:'NOT STARTED' },
-    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',              daysAway:14, readyStatus:'NOT STARTED' },
-    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',    daysAway:16, readyStatus:'NOT STARTED' },
-    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich', daysAway:17, readyStatus:'NOT STARTED' },
+    { date:'2026-04-10', subject:'Int Math',  topic:'Coordinate Geometry',     daysAway:2,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
+    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:5,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',              daysAway:7,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:7,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
+    { date:'2026-04-16', subject:'Add Math',  topic:'Full syllabus',           daysAway:8,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:4 },
+    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',              daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',    daysAway:15, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich', daysAway:16, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
   ],
 
   days: {
@@ -775,6 +775,7 @@ function TestsStrip() {
               <div className="test-topic" style={{color:c.text}}>{t.topic}</div>
               <div className="test-date"  style={{color:c.text}}>{fmtShort(t.date)}</div>
               <div className={rc}>{t.readyStatus === 'NOT STARTED' ? '● Not started' : t.readyStatus === 'IN PROGRESS' ? '◑ In progress' : '✓ Ready'}</div>
+              {t.hrsNeeded > 0 && <div style={{fontSize:'9px',color:'#AAA',marginTop:'2px'}}>{t.hrsStudied}/{t.hrsNeeded} hrs</div>}
             </div>
           );
         })}
