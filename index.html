@@ -250,7 +250,7 @@ const TUITION_SCHEDULE = {
 
 /* ── All day data ─────────────────────────────────────────────────────── */
 const DATA = {
-  meta: { lastUpdated:'2026-04-08', student:'Alissa Saurin Jhaveri', grade:'IX', school:'Hill Spring International School' },
+  meta: { lastUpdated:'2026-04-11', student:'Alissa Saurin Jhaveri', grade:'IX', school:'Hill Spring International School' },
 
   gradeProfile: {
     'Add Math':         { grade:'D', pct:63.91, priority:1, trend:'improving', color:'#E05C20' },
@@ -271,15 +271,14 @@ const DATA = {
   ],
 
   upcomingTests: [
-    { date:'2026-04-10', subject:'Int Math',  topic:'Coordinate Geometry',     daysAway:2,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
-    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',      daysAway:5,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',              daysAway:7,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
-    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',        daysAway:7,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
-    { date:'2026-04-21', subject:'Add Math',  topic:'Integration & Kinematics', daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',           daysAway:9,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',              daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',    daysAway:15, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich', daysAway:16, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',       daysAway:2,  readyStatus:'IN PROGRESS', hrsStudied:2, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',               daysAway:4,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',         daysAway:4,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
+    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',            daysAway:6,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-21', subject:'Add Math',  topic:'Integration & Kinematics', daysAway:10, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',               daysAway:10, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',     daysAway:12, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich',  daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
   ],
 
   days: {
@@ -314,7 +313,7 @@ const DATA = {
         '21:30–22:30 — Homework',
       ], note:'✅ All done. Economics Ch 20 ✅ Homework ✅' },
 
-    '2026-04-09': { dayOfWeek:'Thursday',  status:'upcoming', freeWindows:['16:00–19:15 (3.25 hrs)','21:15–22:30 (1.25 hrs)'],
+    '2026-04-09': { dayOfWeek:'Thursday',  status:'done', freeWindows:['16:00–19:15 (3.25 hrs)','21:15–22:30 (1.25 hrs)'],
       tuitionOverride:[
         { type:'meal',    emoji:'🍽️', label:'Dinner',                  start:'18:30', end:'19:15', dotColor:'#D4B896' },
         { type:'travel',  emoji:'🚶', label:'Travel to UX/UI class',   start:'19:15', end:'19:30', dotColor:'#CCC' },
@@ -327,37 +326,47 @@ const DATA = {
         '18:00–18:30 — Int Math: Coordinate Geometry — key formulas + quick past paper ⚠️ TEST TOMORROW',
         '21:15–22:15 — Economics: Ch 20 — essay plans + 8-mark structure ⚠️🔴',
         '22:15–22:30 — English — Narrative: plan + outline 📗 ⚠️ due Sat',
-      ], completed:[], note:'⚠️ UX/UI class 19:30–21:00 this week only. Good free block 4–6:30 for English work + Int Math.' },
+      ], completed:[
+        '16:00–17:00 — English — Revise 2 poems 📗 (English tuition work, due Sat)',
+        '17:00–18:00 — English — Revise 2 stories 📗 (English tuition work, due Sat)',
+        '18:00–18:30 — Int Math: Coordinate Geometry — key formulas + quick past paper ⚠️ TEST TOMORROW',
+        '21:15–22:15 — Economics: Ch 20 — essay plans + 8-mark structure ⚠️🔴',
+        '22:15–22:30 — English — Narrative: plan + outline 📗 ⚠️ due Sat',
+      ], note:'✅ All done. English poems ✅ stories ✅ Int Math ✅ Economics Ch 20 ✅ Narrative ✅' },
 
-    '2026-04-10': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Int Math — Coordinate Geometry', freeWindows:['20:00–22:30 (2.5 hrs — after dinner)'],
+    '2026-04-10': { dayOfWeek:'Friday',    status:'done', examOrTest:'TEST: Int Math — Coordinate Geometry', freeWindows:['20:00–22:30 (2.5 hrs — after dinner)'],
       planned:[
         'Morning — TEST: Int Math Coordinate Geometry',
         '20:00–21:00 — Chemistry: Separation techniques — distillation, filtration, chromatography ⚠️',
         '21:00–22:00 — Chemistry: Redox — OIL RIG, oxidation states, worked examples ⚠️',
         '22:00–22:30 — English — Narrative: complete + finalize 📗 ⚠️ due Sat',
-      ], completed:[], note:'2–3 hrs Chemistry prep starts tonight (test Mon Apr 13). English narrative must be done tonight — due Sat.' },
+      ], completed:[
+        'Morning — TEST: Int Math Coordinate Geometry',
+        '20:00–21:00 — Chemistry: Separation techniques — distillation, filtration, chromatography ⚠️',
+        '21:00–22:00 — Chemistry: Redox — OIL RIG, oxidation states, worked examples ⚠️',
+        '22:00–22:30 — English — Narrative: complete + finalize 📗 ⚠️ due Sat',
+      ], note:'✅ All done. Int Math test ✅ Chemistry Sep + Redox (2 hrs) ✅ English narrative ✅' },
 
-    '2026-04-11': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:10 (25 min)','14:45–16:45 (2 hrs)','19:15–19:45 (30 min)'],
+    '2026-04-11': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:10 (25 min)','16:45–16:45 (in transit)','19:15–19:45 (30 min)'],
       tuitionOverride:[
-        { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',                      start:'09:45', end:'10:00', dotColor:'#CCC' },
-        { type:'tuition', emoji:'🟣', label:'Math Tuition',                                start:'10:00', end:'11:30', dotColor:'#8E7DC8', bg:'#F0EEFF' },
-        { type:'travel',  emoji:'🚶', label:'Travel home',                                 start:'11:30', end:'11:45', dotColor:'#CCC' },
-        { type:'meal',    emoji:'🍽️', label:'Quick Lunch',                                start:'11:45', end:'12:10', dotColor:'#D4B896' },
-        { type:'travel',  emoji:'🚶', label:'Travel to English tuition (⚠️ 12:30 today)', start:'12:10', end:'12:30', dotColor:'#CCC' },
-        { type:'tuition', emoji:'📗', label:'English Tuition ⚠️ 12:30–2:30 today only',  start:'12:30', end:'14:30', dotColor:'#3AADAD', bg:'#E8F7F7' },
-        { type:'travel',  emoji:'🚶', label:'Travel home',                                 start:'14:30', end:'14:45', dotColor:'#CCC' },
-        { type:'travel',  emoji:'🚶', label:'Travel to French tuition',                    start:'16:45', end:'17:00', dotColor:'#CCC' },
-        { type:'tuition', emoji:'🇫🇷', label:'French Tuition',                            start:'17:00', end:'19:00', dotColor:'#D96B8C', bg:'#FDE8EF' },
-        { type:'travel',  emoji:'🚶', label:'Travel home',                                 start:'19:00', end:'19:15', dotColor:'#CCC' },
-        { type:'travel',  emoji:'🚶', label:'Travel to Debate',                            start:'19:45', end:'20:00', dotColor:'#CCC' },
-        { type:'tuition', emoji:'🎤', label:'Debate',                                      start:'20:00', end:'21:30', dotColor:'#6EB5A0', bg:'#E8F5F0' },
-        { type:'travel',  emoji:'🚶', label:'Travel home',                                 start:'21:30', end:'21:45', dotColor:'#CCC' },
+        { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',                          start:'09:45', end:'10:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🟣', label:'Math Tuition',                                    start:'10:00', end:'11:30', dotColor:'#8E7DC8', bg:'#F0EEFF' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',                                     start:'11:30', end:'11:45', dotColor:'#CCC' },
+        { type:'meal',    emoji:'🍽️', label:'Quick Lunch',                                    start:'11:45', end:'12:10', dotColor:'#D4B896' },
+        { type:'travel',  emoji:'🚶', label:'Travel to English tuition (⚠️ 12:30 today)',     start:'12:10', end:'12:30', dotColor:'#CCC' },
+        { type:'tuition', emoji:'📗', label:'English Tuition ⚠️ 12:30–2:30 today only',       start:'12:30', end:'14:30', dotColor:'#3AADAD', bg:'#E8F7F7' },
+        { type:'travel',  emoji:'🚶', label:'Straight to Chemistry class (no home trip)',       start:'14:30', end:'15:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🧪', label:'Chemistry Class (today only)',                    start:'15:00', end:'16:30', dotColor:'#E8964A', bg:'#FEF3E8' },
+        { type:'travel',  emoji:'🚶', label:'Travel to French tuition',                        start:'16:30', end:'17:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🇫🇷', label:'French Tuition',                               start:'17:00', end:'19:00', dotColor:'#D96B8C', bg:'#FDE8EF' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',                                     start:'19:00', end:'19:15', dotColor:'#CCC' },
+        { type:'travel',  emoji:'🚶', label:'Travel to Debate',                                start:'19:45', end:'20:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🎤', label:'Debate',                                          start:'20:00', end:'21:30', dotColor:'#6EB5A0', bg:'#E8F5F0' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',                                     start:'21:30', end:'21:45', dotColor:'#CCC' },
       ],
       planned:[
-        '14:45–15:45 — Chemistry: Separation + Redox — past paper questions timed ⚠️',
-        '15:45–16:45 — Chemistry: Lab tests — identification tests, experimental observations ⚠️',
-        '19:15–19:45 — Chemistry: Flashcards + summary sheet ⚠️',
-      ], completed:[], note:'⚠️ English tuition 12:30–2:30 today only (early start). Quick lunch 11:45–12:10 before heading out.' },
+        '19:15–19:45 — Chemistry: Flashcards + summary sheet ⚠️ TEST MON',
+      ], completed:[], note:'⚠️ Chem class 3–4:30 (going straight from English). English + French + Debate + Chem — packed day.' },
 
     '2026-04-12': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
       planned:[
@@ -629,10 +638,10 @@ function detectSubject(text) {
 
 /* ── Study tracker data ───────────────────────────────────────────────── */
 const STUDY_TARGETS = {
-  lastUpdated: '2026-04-08',
+  lastUpdated: '2026-04-11',
   tests: [
     { id:'intmath-mensuration',     subject:'Int Math',    topic:'Coordinate Geometry',            dateLabel:'Fri 10 Apr', date:'2026-04-10', grade:'A',   targetHrs:1.5, completedHrs:0,  sessions:[] },
-    { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
+    { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:2,  sessions:[{date:'Apr 10', hrs:2, note:'Separation techniques + Redox (OIL RIG, oxidation states)'}] },
     { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 only',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:3,   completedHrs:1,  sessions:[{date:'Apr 8', hrs:1, note:'Ch 20 — key terms, definitions, diagrams'}] },
     { id:'french-rw',               subject:'French',      topic:'Reading & Writing',              dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'B',   targetHrs:2.5, completedHrs:0,  sessions:[] },
     { id:'addmath-test',            subject:'Add Math',    topic:'Integration & Kinematics',       dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'D',   targetHrs:3,   completedHrs:0,  sessions:[] },
