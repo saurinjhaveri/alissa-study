@@ -250,7 +250,7 @@ const TUITION_SCHEDULE = {
 
 /* ── All day data ─────────────────────────────────────────────────────── */
 const DATA = {
-  meta: { lastUpdated:'2026-04-11', student:'Alissa Saurin Jhaveri', grade:'IX', school:'Hill Spring International School' },
+  meta: { lastUpdated:'2026-04-12', student:'Alissa Saurin Jhaveri', grade:'IX', school:'Hill Spring International School' },
 
   gradeProfile: {
     'Add Math':         { grade:'D', pct:63.91, priority:1, trend:'improving', color:'#E05C20' },
@@ -271,14 +271,14 @@ const DATA = {
   ],
 
   upcomingTests: [
-    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',       daysAway:2,  readyStatus:'IN PROGRESS', hrsStudied:2, hrsNeeded:3 },
-    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',               daysAway:4,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
-    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',         daysAway:4,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
-    { date:'2026-04-17', subject:'Biology',   topic:'Full syllabus',            daysAway:6,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-21', subject:'Add Math',  topic:'Integration & Kinematics', daysAway:10, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',               daysAway:10, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',     daysAway:12, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich',  daysAway:13, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-13', subject:'Chemistry', topic:'Separation + Redox',       daysAway:1,  readyStatus:'IN PROGRESS', hrsStudied:3, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'Economics', topic:'Ch 20 only',               daysAway:3,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
+    { date:'2026-04-15', subject:'French',    topic:'Reading & Writing',         daysAway:3,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:2 },
+    { date:'2026-04-17', subject:'Biology',   topic:'Transport in Humans',      daysAway:5,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-21', subject:'Add Math',  topic:'Integration & Kinematics', daysAway:9,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-21', subject:'Physics',   topic:'Practicals',               daysAway:9,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-23', subject:'Physics',   topic:'Light (Rays & Waves)',     daysAway:11, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
+    { date:'2026-04-24', subject:'Chemistry', topic:'Periodic table + Stoich',  daysAway:12, readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
   ],
 
   days: {
@@ -347,7 +347,7 @@ const DATA = {
         '22:00–22:30 — English — Narrative: complete + finalize 📗 ⚠️ due Sat',
       ], note:'✅ All done. Int Math test ✅ Chemistry Sep + Redox (2 hrs) ✅ English narrative ✅' },
 
-    '2026-04-11': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:10 (25 min)','16:45–16:45 (in transit)','19:15–19:45 (30 min)'],
+    '2026-04-11': { dayOfWeek:'Saturday',  status:'done', freeWindows:['11:45–12:10 (25 min)','16:45–16:45 (in transit)','19:15–19:45 (30 min)'],
       tuitionOverride:[
         { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',                          start:'09:45', end:'10:00', dotColor:'#CCC' },
         { type:'tuition', emoji:'🟣', label:'Math Tuition',                                    start:'10:00', end:'11:30', dotColor:'#8E7DC8', bg:'#F0EEFF' },
@@ -366,9 +366,11 @@ const DATA = {
       ],
       planned:[
         '19:15–19:45 — Chemistry: Flashcards + summary sheet ⚠️ TEST MON',
-      ], completed:[], note:'⚠️ Chem class 3–4:30 (going straight from English). English + French + Debate + Chem — packed day.' },
+      ], completed:[
+        '19:15–19:45 — Chemistry: Flashcards + summary sheet ⚠️ TEST MON',
+      ], note:'✅ All done.', status:'done' },
 
-    '2026-04-12': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
+    '2026-04-12': { dayOfWeek:'Sunday',    status:'partial', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
       planned:[
         '10:00–10:45 — Chemistry: Full timed past paper (separation + redox) ⚠️ TEST TOMORROW',
         '14:00–15:15 — Chemistry: Mark paper + revise weak areas + final summary notes ⚠️',
@@ -376,7 +378,13 @@ const DATA = {
         '17:15–18:15 — Add Math: Integration + kinematics — worked examples 📚🔴',
         '18:15–19:30 — English Lit: A Midsummer Night\'s Dream — scenes, characters, quotes 📚🔴',
         '19:30–22:30 — Homework (3 hrs)',
-      ], completed:[], note:'2 hrs Chemistry total (45 min paper + 1:15 revision). Homework block 7:30–10:30.' },
+      ], completed:[
+        '10:00–10:45 — Chemistry: Full timed past paper (separation + redox) ⚠️ TEST TOMORROW',
+        '14:00–15:15 — Chemistry: Mark paper + revise weak areas + final summary notes ⚠️',
+        '17:15–18:15 — Add Math: Integration + kinematics — worked examples 📚🔴',
+        '18:15–19:30 — English Lit: A Midsummer Night\'s Dream — scenes, characters, quotes 📚🔴',
+        '19:30–22:30 — Homework (3 hrs)',
+      ], note:'Economics still to do. Everything else ✅' },
 
     '2026-04-13': { dayOfWeek:'Monday',    status:'upcoming', examOrTest:'TEST: Chemistry — Separation + Redox', freeWindows:['21:15–22:30 (1.25 hrs)'],
       planned:[
@@ -398,8 +406,8 @@ const DATA = {
         '17:00–18:00 — Economics: Ch 20 & 21 — detailed revision, key terms, 8-mark essay practice ⚠️🔴',
         '18:00–18:30 — 💻 Online Meeting',
         '18:30–19:00 — Economics: Ch 20 & 21 continued ⚠️🔴',
-        '21:15–22:30 — French: Reading & Writing — full past paper timed practice ⚠️ TEST TOMORROW',
-      ], completed:[], note:'💻 Online meeting 6:00–6:30. Economics split around it.' },
+        '21:15–22:30 — Economics: Ch 20 & 21 — 8-mark essay practice + timed questions ⚠️🔴',
+      ], completed:[], note:'💻 Online meeting 6:00–6:30. No French revision — extra Economics instead.' },
 
     '2026-04-15': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TESTS: Economics (Ch20-21) + French (R&W)', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
       planned:[
@@ -640,11 +648,11 @@ const STUDY_TARGETS = {
   lastUpdated: '2026-04-11',
   tests: [
     { id:'intmath-mensuration',     subject:'Int Math',    topic:'Coordinate Geometry',            dateLabel:'Fri 10 Apr', date:'2026-04-10', grade:'A',   targetHrs:1.5, completedHrs:1.5, sessions:[{date:'Apr 9', hrs:1.5, note:'Key formulas + past paper — test done ✅'}] },
-    { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:2,  sessions:[{date:'Apr 10', hrs:2, note:'Separation techniques + Redox (OIL RIG, oxidation states)'}] },
+    { id:'chemistry-sep-redox',     subject:'Chemistry',   topic:'Separation + Redox',             dateLabel:'Mon 13 Apr', date:'2026-04-13', grade:'C',   targetHrs:3,   completedHrs:3,  sessions:[{date:'Apr 10', hrs:2, note:'Separation techniques + Redox (OIL RIG, oxidation states)'},{date:'Apr 12', hrs:1, note:'Timed past paper + mark + final summary notes'}] },
     { id:'economics-ch20-21',       subject:'Economics',   topic:'Ch 20 only',                     dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'D',   targetHrs:3,   completedHrs:1,  sessions:[{date:'Apr 8', hrs:1, note:'Ch 20 — key terms, definitions, diagrams'}] },
     { id:'french-rw',               subject:'French',      topic:'Reading & Writing',              dateLabel:'Wed 15 Apr', date:'2026-04-15', grade:'B',   targetHrs:2.5, completedHrs:0,  sessions:[] },
     { id:'addmath-test',            subject:'Add Math',    topic:'Integration & Kinematics',       dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'D',   targetHrs:3,   completedHrs:0,  sessions:[] },
-    { id:'biology-test',            subject:'Biology',     topic:'Full syllabus',                  dateLabel:'Fri 17 Apr', date:'2026-04-17', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
+    { id:'biology-test',            subject:'Biology',     topic:'Transport in Humans',            dateLabel:'Fri 17 Apr', date:'2026-04-17', grade:'A',   targetHrs:2.5, completedHrs:0,  sessions:[] },
     { id:'physics-practicals',      subject:'Physics',     topic:'Practicals (ATP)',               dateLabel:'Tue 21 Apr', date:'2026-04-21', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'physics-light',           subject:'Physics',     topic:'Light (Rays & Waves)',           dateLabel:'Thu 23 Apr', date:'2026-04-23', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
     { id:'chemistry-periodic-stoich',subject:'Chemistry',  topic:'Periodic table + Stoichiometry',dateLabel:'Fri 24 Apr', date:'2026-04-24', grade:'C',   targetHrs:3,   completedHrs:0,  sessions:[] },
