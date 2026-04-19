@@ -442,21 +442,29 @@ const DATA = {
         '22:15–22:30 — Homework / study catch-up time 📚',
       ], note:'✅ All done.' },
 
-    '2026-04-16': { dayOfWeek:'Thursday',  status:'upcoming', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
+    '2026-04-16': { dayOfWeek:'Thursday',  status:'done', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
       planned:[
         '16:00–17:30 — English Language: Mock paper — comprehension, writer\'s effect, summary 📚',
         '17:30–19:30 — Biology: Transport in Humans — heart structure, cardiac cycle, blood vessels, tissue fluid ⚠️ TEST TOMORROW',
         '20:15–22:30 — Biology: Transport in Humans — lymph, coronary disease, past paper Qs + full topic review ⚠️ TEST TOMORROW',
-      ], completed:[], note:'Biology test tomorrow — Transport in Humans. 1.5 hrs done Apr 12 + 2 hrs Apr 15. English Language mock 16:00–17:30.' },
+      ], completed:[
+        '16:00–17:30 — English Language: Mock paper — comprehension, writer\'s effect, summary 📚',
+        '17:30–19:30 — Biology: Transport in Humans — heart structure, cardiac cycle, blood vessels, tissue fluid ⚠️ TEST TOMORROW',
+        '20:15–22:30 — Biology: Transport in Humans — lymph, coronary disease, past paper Qs + full topic review ⚠️ TEST TOMORROW',
+      ], note:'✅ All done.' },
 
-    '2026-04-17': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Biology', freeWindows:['20:00–22:30 (2.5 hrs)'],
+    '2026-04-17': { dayOfWeek:'Friday',    status:'done', examOrTest:'TEST: Biology', freeWindows:['20:00–22:30 (2.5 hrs)'],
       planned:[
         'Morning — TEST: Biology',
         '20:00–21:00 — Homework / study catch-up time 📚',
         '21:00–22:30 — English Language: Mock paper — comprehension, writer\'s effect, summary 📚',
-      ], completed:[], note:'English Language mock carried over from Apr 16.' },
+      ], completed:[
+        'Morning — TEST: Biology',
+        '20:00–21:00 — Homework / study catch-up time 📚',
+        '21:00–22:30 — English Language: Mock paper — comprehension, writer\'s effect, summary 📚',
+      ], note:'✅ All done.' },
 
-    '2026-04-18': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','16:00–16:45 (45 min)','19:15–19:45 (30 min)'],
+    '2026-04-18': { dayOfWeek:'Saturday',  status:'done', freeWindows:['11:45–12:30 (45 min)','16:00–16:45 (45 min)','19:15–19:45 (30 min)'],
       tuitionOverride:[
         { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',    start:'09:45', end:'10:00', dotColor:'#CCC' },
         { type:'tuition', emoji:'🟣', label:'Math Tuition',              start:'10:00', end:'11:30', dotColor:'#8E7DC8', subject:'Math', bg:'#F0EEFF' },
@@ -478,7 +486,12 @@ const DATA = {
         '15:00–16:00 — 🔵 Physics Tuition (one-off)',
         '16:00–16:45 — Add Math: Integration — standard integrals, definite/indefinite, area under curve ⚠️🔴',
         '19:15–19:45 — Physics: sums — finish + review ⚠️',
-      ], completed:[], note:'Physics tuition one-off 15:00–16:00. Physics sums done by tonight.' },
+      ], completed:[
+        '11:45–12:30 — Physics: practice sums ⚠️',
+        '15:00–16:00 — 🔵 Physics Tuition (one-off)',
+        '16:00–16:45 — Add Math: Integration — standard integrals, definite/indefinite, area under curve ⚠️🔴',
+        '19:15–19:45 — Physics: sums — finish + review ⚠️',
+      ], note:'✅ All done.' },
 
     '2026-04-19': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
       planned:[
