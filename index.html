@@ -538,14 +538,21 @@ const DATA = {
         '22:00–22:30 — Physics Light: Reflection, refraction, TIR, lenses — intro ⚠️',
       ], completed:[], note:'Add Math test today. Physics makeup tuition 15:45–17:15. MSND test tomorrow.' },
 
-    '2026-04-22': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TEST: English Lit — MSND', freeWindows:['17:45–18:30 (45 min)','19:15–19:45 (30 min)','21:15–22:30 (1.25 hrs)'],
+    '2026-04-22': { dayOfWeek:'Wednesday', status:'upcoming', examOrTest:'TEST: English Lit — MSND', freeWindows:['20:30–22:30 (2 hrs)'],
+      tuitionOverride:[
+        { type:'travel',  emoji:'🚶', label:'Travel to English tuition', start:'15:15', end:'15:30', dotColor:'#CCC' },
+        { type:'tuition', emoji:'📗', label:'English Tuition',           start:'15:30', end:'17:30', dotColor:'#3AADAD', subject:'English', bg:'#E8F7F7' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'17:30', end:'17:45', dotColor:'#CCC' },
+        { type:'meal',    emoji:'🍽️', label:'Dinner',                   start:'17:45', end:'18:15', dotColor:'#D4B896' },
+        { type:'travel',  emoji:'🚶', label:'Travel to Physics tuition', start:'18:15', end:'18:30', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🔵', label:'Physics Tuition (one-off)', start:'18:30', end:'20:15', dotColor:'#4A90D9', subject:'Physics', bg:'#E8F2FC' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'20:15', end:'20:30', dotColor:'#CCC' },
+      ],
       planned:[
         'Morning — TEST: English Lit (MSND)',
-        '17:45–18:30 — Physics Light: Full timed past paper section ⚠️ TEST TOMORROW',
-        '19:15–19:45 — Physics Light: Review mistakes, optics weak spots ⚠️',
-        '21:15–22:15 — Homework / study catch-up time 📚',
-        '22:15–22:30 — Chemistry: Periodic table — groups, trends overview ⚠️',
-      ], completed:[], note:'' },
+        '18:30–20:15 — 🔵 Physics Tuition (one-off)',
+        '20:30–22:30 — Physics Light: Reflection, refraction, TIR, lenses — full revision + past paper ⚠️ TEST TOMORROW',
+      ], completed:[], note:'No Math tuition, no homework. Physics only. Physics Light test tomorrow.' },
 
     '2026-04-23': { dayOfWeek:'Thursday',  status:'upcoming', examOrTest:'TEST: Physics Light', freeWindows:['16:00–19:30 (3.5 hrs)','20:15–22:30 (2.25 hrs)'],
       planned:[
