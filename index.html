@@ -270,12 +270,7 @@ const DATA = {
     { level:'REMINDER', message:'English tuition work due before Sat Apr 11 — 2 poems + 2 stories to revise, plus a narrative to write.', action:'Thu 9: poems 16:00–16:30, stories 17:15–17:45, narrative start 22:00–22:30. Fri 10: narrative final 22:00–22:30.' },
   ],
 
-  upcomingTests: [
-    { date:'2026-04-21', subject:'Add Math',    topic:'Integration & Kinematics', daysAway:0,  readyStatus:'READY',       hrsStudied:3, hrsNeeded:3 },
-    { date:'2026-04-22', subject:'English Lit', topic:'MSND',                     daysAway:1,  readyStatus:'IN PROGRESS', hrsStudied:1, hrsNeeded:3 },
-    { date:'2026-04-23', subject:'Physics',     topic:'Light (Rays & Waves)',      daysAway:2,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-    { date:'2026-04-24', subject:'Chemistry',   topic:'Periodic table + Stoich',   daysAway:3,  readyStatus:'NOT STARTED', hrsStudied:0, hrsNeeded:3 },
-  ],
+  upcomingTests: [],
 
   days: {
     '2026-04-06': { dayOfWeek:'Monday',    status:'missed', freeWindows:['21:15–22:30 (1.25 hrs)'], planned:[], completed:[], carriedForward:['Int Math: Mensuration formulas review','Chemistry: Ch 1 States of Matter'], note:'Had homework. No studying done.', behindAlert:true },
@@ -581,12 +576,15 @@ const DATA = {
         '20:15–22:30 — Chemistry: Past paper questions — periodic table + stoichiometry timed ⚠️',
       ], note:'✅ All done.' },
 
-    '2026-04-24': { dayOfWeek:'Friday',    status:'upcoming', examOrTest:'TEST: Chemistry (Periodic table + Stoichiometry)', freeWindows:['20:00–22:30 (2.5 hrs)'],
+    '2026-04-24': { dayOfWeek:'Friday',    status:'partial', examOrTest:'TEST: Chemistry (Periodic table + Stoichiometry)', freeWindows:['19:30–22:30 (3 hrs)'],
       planned:[
         'Morning — TEST: Chemistry',
-        '20:00–21:00 — Homework',
-        '21:00–22:30 — French Speaking: Oral topics practice — everyday activities, personal life, world around us ⚠️',
-      ], completed:[], note:'' },
+        '19:30–20:30 — English Narrative: finish + refine ✍️',
+        '20:30–21:15 — English: Rewrite answer (45 min) ✍️',
+        '21:15–22:30 — English Lit: Poetry — 2 poems, themes, techniques, key quotes 📚🔴',
+      ], completed:[
+        'Morning — TEST: Chemistry',
+      ], note:'Chemistry test ✅. Evening: narrative + answer rewrite + 2 poems from 19:30.' },
 
     '2026-04-25': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
       planned:[
