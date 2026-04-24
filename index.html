@@ -584,15 +584,32 @@ const DATA = {
         '21:15–22:30 — English Lit: Poetry — 2 poems, themes, techniques, key quotes 📚🔴',
       ], completed:[
         'Morning — TEST: Chemistry',
-      ], note:'Chemistry test ✅. Evening: narrative + answer rewrite + 2 poems from 19:30.' },
+        '19:30–20:30 — English Narrative: finish + refine ✍️',
+        '21:15–22:30 — English Lit: Poetry — 2 poems, themes, techniques, key quotes 📚🔴',
+      ], note:'Chemistry test ✅. Narrative ✅. 2 poems ✅. Answer rewrite still to do.' },
 
-    '2026-04-25': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['11:45–12:30 (45 min)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
+    '2026-04-25': { dayOfWeek:'Saturday',  status:'upcoming', freeWindows:['10:45–12:30 (1.75 hrs)','15:00–16:45 (1.75 hrs)','19:15–19:45 (30 min)'],
+      tuitionOverride:[
+        { type:'travel',  emoji:'🚶', label:'Travel to Math tuition',    start:'08:45', end:'09:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🟣', label:'Math Tuition',              start:'09:00', end:'10:30', dotColor:'#8E7DC8', subject:'Math', bg:'#F0EEFF' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'10:30', end:'10:45', dotColor:'#CCC' },
+        { type:'meal',    emoji:'🍽️', label:'Lunch',                    start:'12:30', end:'13:00', dotColor:'#D4B896' },
+        { type:'travel',  emoji:'🚶', label:'Travel to English tuition', start:'13:00', end:'13:15', dotColor:'#CCC' },
+        { type:'tuition', emoji:'📗', label:'English Tuition',           start:'13:15', end:'14:45', dotColor:'#3AADAD', subject:'English', bg:'#E8F7F7' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'14:45', end:'15:00', dotColor:'#CCC' },
+        { type:'travel',  emoji:'🚶', label:'Travel to French tuition',  start:'16:45', end:'17:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🇫🇷', label:'French Tuition',           start:'17:00', end:'19:00', dotColor:'#D96B8C', subject:'French', bg:'#FDE8EF' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'19:00', end:'19:15', dotColor:'#CCC' },
+        { type:'travel',  emoji:'🚶', label:'Travel to Debate',          start:'19:45', end:'20:00', dotColor:'#CCC' },
+        { type:'tuition', emoji:'🎤', label:'Debate',                    start:'20:00', end:'21:30', dotColor:'#6EB5A0', subject:'Debate', bg:'#E8F5F0' },
+        { type:'travel',  emoji:'🚶', label:'Travel home',               start:'21:30', end:'21:45', dotColor:'#CCC' },
+      ],
       planned:[
-        '11:45–12:30 — French Speaking: Mock oral, pronunciation, structured responses ⚠️',
+        '10:45–12:30 — French Speaking: Mock oral, pronunciation, structured responses ⚠️',
         '15:00–16:00 — Homework',
         '16:00–16:45 — English Lit: Prose — all 5 stories, key themes + characters 📚🔴',
         '19:15–19:45 — Add Math: Trig (exact values, identities), circular measure 📚🔴',
-      ], completed:[], note:'' },
+      ], completed:[], note:'Math tuition 09:00–10:30 (one hour earlier than usual).' },
 
     '2026-04-26': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
       planned:[
