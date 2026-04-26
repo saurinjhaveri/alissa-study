@@ -734,13 +734,39 @@ const DATA = {
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-/* ── localStorage overrides ──────────────────────────────────────────── */
+/* ── Cloud sync + localStorage fallback ──────────────────────────────── */
+// Paste your Firebase Realtime Database URL here (see setup instructions).
+// Leave as '' to use localStorage only (single-device).
+const SYNC_URL = '';  // e.g. 'https://alissa-study-abc12-default-rtdb.firebaseio.com/overrides'
+
 const LS_KEY = 'alissa_overrides_v1';
+
 function loadOverrides() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) { return {}; }
 }
-function saveOverrides(obj) {
+function saveLocal(obj) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e) {}
+}
+
+async function fetchRemote() {
+  if (!SYNC_URL) return null;
+  try {
+    const r = await fetch(SYNC_URL + '.json');
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data || {};
+  } catch(e) { return null; }
+}
+
+async function pushRemote(obj) {
+  if (!SYNC_URL) return;
+  try {
+    await fetch(SYNC_URL + '.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obj),
+    });
+  } catch(e) {}
 }
 
 /* ── Today (IST-safe) ─────────────────────────────────────────────────── */
@@ -1402,11 +1428,26 @@ function App() {
   const entries = Object.entries(DATA.days).sort(([a],[b]) => a.localeCompare(b));
   const [editMode,  setEditMode]  = useState(false);
   const [overrides, setOverrides] = useState(() => loadOverrides());
+  const [syncing,   setSyncing]   = useState(false);
+
+  // On mount: pull latest from Firebase (overrides local cache)
+  useEffect(() => {
+    if (!SYNC_URL) return;
+    setSyncing(true);
+    fetchRemote().then(remote => {
+      if (remote && Object.keys(remote).length > 0) {
+        setOverrides(remote);
+        saveLocal(remote);
+      }
+      setSyncing(false);
+    });
+  }, []);
 
   function updateOverride(dateStr, patch) {
     const next = { ...overrides, [dateStr]: patch };
     setOverrides(next);
-    saveOverrides(next);
+    saveLocal(next);
+    pushRemote(next); // fire-and-forget; syncs to all devices
   }
 
   useEffect(() => {
@@ -1428,9 +1469,24 @@ function App() {
           <div className="header-sub">Grade IX IGCSE · Hill Spring International School</div>
         </div>
         <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:8}}>
-          <div className="header-date">{todayStr}</div>
+          <div style={{display:'flex', alignItems:'center', gap:8}}>
+            <div className="header-date">{todayStr}</div>
+            {SYNC_URL && <span style={{fontSize:10, color: syncing ? '#F0A500' : '#5BAD6F'}}>{syncing ? '⟳ syncing…' : '☁ synced'}</span>}
+          </div>
           <button
-            onClick={() => setEditMode(e => !e)}
+            onClick={() => {
+              if (!editMode && SYNC_URL) {
+                setSyncing(true);
+                fetchRemote().then(remote => {
+                  if (remote && Object.keys(remote).length > 0) {
+                    setOverrides(remote);
+                    saveLocal(remote);
+                  }
+                  setSyncing(false);
+                });
+              }
+              setEditMode(e => !e);
+            }}
             style={{
               padding:'5px 14px',
               fontSize:11.5,
