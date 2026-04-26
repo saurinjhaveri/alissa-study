@@ -19,12 +19,13 @@ A running record of schedule changes, fixes, and problem areas. Claude reads thi
 - **Note**: `Break 16:30–17:30. English Language shortened by 60 min — carried forward to Apr 27.`
 
 #### Apr 27 (Monday)
-- **Added** free window `14:00–16:15 (2.25 hrs)` — previously missing (school ends, no homework)
-- **Added** `14:00–15:00 — English Language: Comprehension (carry-forward from Apr 26)` — makes up the 60 min cut
-- **Added** `15:00–16:00 — French Speaking: Topic areas + pronunciation drills` — moved from the too-late `22:15–22:30` slot
-- **Removed** `22:15–22:30 — French Speaking: Vocabulary list + key phrases` (too short, too late)
-- **Updated** `freeWindows`: `['14:00–16:15 (2.25 hrs)','18:45–22:30 (3.75 hrs)']`
-- **Updated** note to mention afternoon carry-forward.
+- **Correction** (same session): School runs until **16:00**, travel to Economics tuition starts 16:15 — no usable afternoon window. Reverted to original `freeWindows: ['18:45–22:30 (3.75 hrs)']`.
+- **Removed** `22:15–22:30 — French Speaking` (too short, too late — covered by Apr 28 morning instead)
+- Carry-forward sessions (English Language + French Speaking) moved to **Apr 28** which is study leave.
+
+#### Apr 28 (Tuesday — Study Leave)
+- **English Language** `21:15–22:30` updated to note it covers the Apr 26 carry-forward.
+- French Speaking already has a 2-hour mock oral block `10:00–12:00` — no extra session needed.
 
 ### Bug Fixes
 - **Firebase stale override bug**: When user added a break + eco block via pinned-time mode on Apr 26, conflicting sessions (English Lit, Add Math, Economics) were NOT displaced. Root cause: a previous broken attempt had written a `plannedOverride` to Firebase that was overriding the hardcoded DATA. Fix: (1) corrected the hardcoded DATA above, (2) added **🔄 Reset Day to Original** button in the edit panel to clear stale overrides.
