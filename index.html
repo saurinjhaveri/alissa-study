@@ -1050,41 +1050,163 @@ function tryCompactPack(overrides, taskText, durationMins, deadline) {
   return null;
 }
 
+// Helper: find a natural slot of durationMins in a specific day (ignores deadline)
+function findSlotInDay(ds, day, ov, durationMins) {
+  if (!day.freeWindows) return null;
+  const planned = effectivePlanned(day, ov);
+  const used = [];
+  for (const p of planned) {
+    const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+    if (rm) used.push({ s: toMin(rm[1]), e: toMin(rm[2]) });
+  }
+  const tuition = day.tuitionOverride || TUITION_SCHEDULE[day.dayOfWeek] || [];
+  for (const b of tuition) { if (b.start && b.end) used.push({ s: toMin(b.start), e: toMin(b.end) }); }
+  used.sort((a, b) => a.s - b.s);
+  for (const fw of day.freeWindows) {
+    const win = parseFreeWindow(fw);
+    if (!win || win.endMin - win.startMin < durationMins) continue;
+    let cursor = win.startMin, placed = null;
+    for (const slot of used.filter(u => u.s < win.endMin && u.e > win.startMin)) {
+      if (slot.s - cursor >= durationMins) { placed = cursor; break; }
+      cursor = Math.max(cursor, slot.e);
+    }
+    if (placed === null && win.endMin - cursor >= durationMins) placed = cursor;
+    if (placed !== null) return placed;
+  }
+  return null;
+}
+
+// Helper: split planned items into those inside a window vs outside
+function splitByWindow(allPlanned, win) {
+  const inWin = [], outside = [];
+  for (const p of allPlanned) {
+    const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+    if (!rm) { outside.push(p); continue; }
+    const s = toMin(rm[1]), e = toMin(rm[2]);
+    if (s < win.endMin && e > win.startMin)
+      inWin.push({ text: p, dur: Math.min(e, win.endMin) - Math.max(s, win.startMin), s: toMin(rm[1]) });
+    else outside.push(p);
+  }
+  return { inWin, outside };
+}
+
+// Helper: repack inWin items end-to-end from win.startMin, then append new task
+function packAndAppend(inWin, win, newTaskText, newDur) {
+  let cursor = win.startMin;
+  const repacked = inWin.map(item => {
+    const out = item.text.replace(/^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
+      `${fromMin(cursor)}–${fromMin(cursor + item.dur)}`);
+    cursor += item.dur;
+    return out;
+  });
+  const newStart = cursor;
+  repacked.push(`${fromMin(newStart)}–${fromMin(newStart + newDur)} — ${newTaskText}`);
+  return { repacked, newStart };
+}
+
+// Strategy 3: trim the longest existing session in a window to make room (≤ 30 min cut)
+function tryTrimExisting(overrides, taskText, durationMins, deadline) {
+  for (const [ds, day] of sortedUpcoming(deadline)) {
+    const ov = overrides[ds] || {};
+    if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
+    if (!day.freeWindows || !day.freeWindows.length) continue;
+    const allPlanned = effectivePlanned(day, ov);
+    for (const fw of day.freeWindows) {
+      const win = parseFreeWindow(fw);
+      if (!win) continue;
+      const { inWin, outside } = splitByWindow(allPlanned, win);
+      const totalUsed = inWin.reduce((s, i) => s + i.dur, 0);
+      const deficit = totalUsed + durationMins - (win.endMin - win.startMin);
+      if (deficit <= 0 || deficit > 30) continue;
+      // Find longest session that can absorb the cut without going below 15 min
+      const trimTarget = [...inWin].sort((a, b) => b.dur - a.dur)
+        .find(i => i.dur - deficit >= 15);
+      if (!trimTarget) continue;
+      const trimmed = inWin.map(i =>
+        i === trimTarget ? { ...i, dur: i.dur - deficit } : i
+      ).sort((a, b) => a.s - b.s);
+      const { repacked, newStart } = packAndAppend(trimmed, win, taskText, durationMins);
+      const newPlanned = [...outside, ...repacked];
+      const itemText = repacked[repacked.length - 1];
+      return { ds, itemText, method: 'trimmed',
+        trimmedSession: trimTarget.text, trimmedBy: deficit,
+        patches: { [ds]: { ...ov, plannedOverride: newPlanned, addedPlanned: [] } } };
+    }
+  }
+  return null;
+}
+
+// Strategy 4: move an existing session to another day to free its slot
+function tryMoveExisting(overrides, taskText, durationMins, deadline) {
+  const allDays = Object.entries(DATA.days).sort(([a],[b]) => a.localeCompare(b));
+  for (const [ds, day] of sortedUpcoming(deadline)) {
+    const ov = overrides[ds] || {};
+    if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
+    if (!day.freeWindows || !day.freeWindows.length) continue;
+    const allPlanned = effectivePlanned(day, ov);
+    for (const fw of day.freeWindows) {
+      const win = parseFreeWindow(fw);
+      if (!win) continue;
+      const { inWin, outside } = splitByWindow(allPlanned, win);
+      // Try removing each existing session to see if new task fits
+      for (const candidate of [...inWin].sort((a, b) => a.dur - b.dur)) {
+        const remaining = inWin.filter(i => i !== candidate).sort((a, b) => a.s - b.s);
+        const totalAfter = remaining.reduce((s, i) => s + i.dur, 0);
+        if (totalAfter + durationMins > win.endMin - win.startMin) continue;
+        // Find another day (not restricted by deadline) that can take the candidate
+        const futureDays = allDays.filter(([fds]) => fds > ds);
+        let moveTarget = null;
+        for (const [fds, fday] of futureDays) {
+          const fov = overrides[fds] || {};
+          if ((fov.status || fday.status) === 'done' || (fov.status || fday.status) === 'missed') continue;
+          const slot = findSlotInDay(fds, fday, fov, candidate.dur);
+          if (slot !== null) { moveTarget = { fds, fday, fov, slot }; break; }
+        }
+        if (!moveTarget) continue;
+        // Build new planned for current day
+        const { repacked, newStart } = packAndAppend(remaining, win, taskText, durationMins);
+        const newPlanned = [...outside, ...repacked];
+        const itemText = repacked[repacked.length - 1];
+        // Build patch for future day
+        const movedText = candidate.text.replace(/^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
+          `${fromMin(moveTarget.slot)}–${fromMin(moveTarget.slot + candidate.dur)}`);
+        const { fds, fov } = moveTarget;
+        const fPlanned = effectivePlanned(moveTarget.fday, fov);
+        return { ds, itemText, method: 'moved',
+          movedSession: candidate.text, movedTo: { ds: fds, text: movedText },
+          patches: {
+            [ds]:  { ...ov,  plannedOverride: newPlanned, addedPlanned: [] },
+            [fds]: { ...fov, addedPlanned: [...(fov.addedPlanned || []), movedText] },
+          } };
+      }
+    }
+  }
+  return null;
+}
+
 // Master scheduler: tries strategies in order, returns a result object or null
+// Every result has a `patches` dict ({ [dateStr]: overridePatch }) to apply.
 function smartSchedule(overrides, taskText, durationMins, deadline) {
-  // 1. Natural fit at requested duration
+  // 1. Natural fit
   const s1 = tryNaturalFit(overrides, durationMins, deadline);
   if (s1) {
     const ov = overrides[s1.ds] || {};
     const itemText = `${fromMin(s1.startMin)}–${fromMin(s1.startMin + durationMins)} — ${taskText}`;
     return { ds: s1.ds, itemText, method: 'normal',
-      patch: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } };
+      patches: { [s1.ds]: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } } };
   }
-
-  // 2. Compact-pack with requested duration
+  // 2. Compact-pack
   const s2 = tryCompactPack(overrides, taskText, durationMins, deadline);
   if (s2) {
     const itemText = `${fromMin(s2.startMin)}–${fromMin(s2.endMin)} — ${taskText}`;
-    return { ds: s2.ds, itemText, method: 'rearranged', patch: s2.newOv };
+    return { ds: s2.ds, itemText, method: 'rearranged', patches: { [s2.ds]: s2.newOv } };
   }
-
-  // 3. Shorten by up to 30 min and try again (natural then compact)
-  for (let shorter = durationMins - 15; shorter >= Math.max(15, durationMins - 30); shorter -= 15) {
-    const s3a = tryNaturalFit(overrides, shorter, deadline);
-    if (s3a) {
-      const ov = overrides[s3a.ds] || {};
-      const itemText = `${fromMin(s3a.startMin)}–${fromMin(s3a.startMin + shorter)} — ${taskText}`;
-      return { ds: s3a.ds, itemText, method: 'shortened', actualMins: shorter, requestedMins: durationMins,
-        patch: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } };
-    }
-    const s3b = tryCompactPack(overrides, taskText, shorter, deadline);
-    if (s3b) {
-      const itemText = `${fromMin(s3b.startMin)}–${fromMin(s3b.endMin)} — ${taskText}`;
-      return { ds: s3b.ds, itemText, method: 'shortened+rearranged', actualMins: shorter, requestedMins: durationMins,
-        patch: s3b.newOv };
-    }
-  }
-
+  // 3. Trim an existing session
+  const s3 = tryTrimExisting(overrides, taskText, durationMins, deadline);
+  if (s3) return s3;
+  // 4. Move an existing session to another day
+  const s4 = tryMoveExisting(overrides, taskText, durationMins, deadline);
+  if (s4) return s4;
   return null;
 }
 
@@ -1630,19 +1752,25 @@ function AddTaskPanel({ overrides, onScheduled }) {
 
       {result && result.ok && (() => {
         const timeStr = result.itemText.match(/^(\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2})/)?.[1] || '';
-        const note =
-          result.method === 'rearranged'           ? ' — reshuffled existing sessions to fit' :
-          result.method === 'shortened'            ? ` — shortened to ${result.actualMins} min to fit` :
-          result.method === 'shortened+rearranged' ? ` — reshuffled + shortened to ${result.actualMins} min` : '';
+        const dayNames2 = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const dLabel = ds => { const d = new Date(ds+'T00:00:00'); return `${dayNames2[d.getDay()]} ${fmtShort(ds)}`; };
+        let note = null;
+        if (result.method === 'rearranged')
+          note = 'reshuffled existing sessions to fit';
+        else if (result.method === 'trimmed')
+          note = `trimmed another session by ${result.trimmedBy} min to make room`;
+        else if (result.method === 'moved')
+          note = `moved "${parseItem(result.movedSession).label}" to ${dLabel(result.movedTo.ds)} to free up the slot`;
         return (
           <div style={{marginTop:8, fontSize:12, color:'#1A6A38', background:'#E8F5EC', padding:'7px 10px', borderRadius:6}}>
-            ✅ <strong>{result.day} {fmtShort(result.ds)}</strong> at {timeStr}{note && <span style={{color:'#4A7A30', fontStyle:'italic'}}>{note}</span>}
+            <div>✅ <strong>{dLabel(result.ds)}</strong> at {timeStr}</div>
+            {note && <div style={{fontSize:11, color:'#4A7A30', fontStyle:'italic', marginTop:2}}>↳ {note}</div>}
           </div>
         );
       })()}
       {result && !result.ok && (
         <div style={{marginTop:8, fontSize:12, color:'#922B21', background:'#FADBD8', padding:'7px 10px', borderRadius:6}}>
-          ⚠️ Couldn't fit this{result.deadline ? ` before ${fmtShort(result.deadline)}` : ' anywhere in the coming days'} — even after trying to rearrange. Try a different deadline or ask Claude to free up some time.
+          ⚠️ Couldn't fit this{result.deadline ? ` before ${fmtShort(result.deadline)}` : ' anywhere in the coming days'} — even after trying to rearrange, trim, or move sessions. Try a different deadline or ask Claude to free up some time.
         </div>
       )}
     </div>
@@ -1751,13 +1879,17 @@ function App() {
     });
   }, []);
 
-  function updateOverride(dateStr, patch) {
+  function applyPatches(patches) {
     // Snapshot current state onto the undo stack (keep last 30)
     setHistory(h => [...h.slice(-29), overrides]);
-    const next = { ...overrides, [dateStr]: patch };
+    const next = { ...overrides, ...patches };
     setOverrides(next);
     saveLocal(next);
     pushRemote(next);
+  }
+
+  function updateOverride(dateStr, patch) {
+    applyPatches({ [dateStr]: patch });
   }
 
   function undo() {
@@ -1838,7 +1970,7 @@ function App() {
           <TestsStrip />
           <AddTaskPanel
             overrides={overrides}
-            onScheduled={(res) => updateOverride(res.ds, res.patch)}
+            onScheduled={(res) => applyPatches(res.patches)}
           />
           <StudyTracker />
           <div className="phase-div">School Test Phase · Apr 6 – Apr 28</div>
