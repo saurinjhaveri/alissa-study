@@ -1095,6 +1095,39 @@ function scheduleTask(overrides, taskText, durationMins, deadline) {
   return { ds: r.ds, start: fromMin(r.startMin), end: fromMin(r.startMin + durationMins) };
 }
 
+// After deleting an item, shift remaining items in each free window forward to fill the gap
+function recompactDay(plannedList, freeWindows) {
+  if (!freeWindows || !freeWindows.length) return plannedList;
+  let result = [...plannedList];
+  for (const fw of freeWindows) {
+    const win = parseFreeWindow(fw);
+    if (!win) continue;
+    const inWin = [], outside = [];
+    for (const p of result) {
+      const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+      if (!rm) { outside.push(p); continue; }
+      const s = toMin(rm[1]), e = toMin(rm[2]);
+      if (s >= win.startMin && s < win.endMin) {
+        inWin.push({ text: p, dur: e - s, s });
+      } else {
+        outside.push(p);
+      }
+    }
+    inWin.sort((a, b) => a.s - b.s);
+    let cursor = win.startMin;
+    const repacked = inWin.map(item => {
+      const out = item.text.replace(
+        /^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
+        `${fromMin(cursor)}–${fromMin(cursor + item.dur)}`
+      );
+      cursor += item.dur;
+      return out;
+    });
+    result = [...outside, ...repacked];
+  }
+  return result;
+}
+
 /* ══════════════════════ COMPONENTS ══════════════════════ */
 
 function TrendIcon({ trend }) {
@@ -1272,6 +1305,15 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
     setNewItem('');
   }
 
+  function deleteItem(itemText) {
+    // Remove item then recompact remaining items in free windows to fill the gap
+    const afterDelete = planned.filter(p => p !== itemText);
+    const recompacted = recompactDay(afterDelete, day.freeWindows);
+    // Also remove from completed if it was ticked
+    const newCompleted = completed.filter(c => c !== itemText);
+    onSave({ ...(override || {}), plannedOverride: recompacted, addedPlanned: [], completed: newCompleted });
+  }
+
   // ── Derived display values ────────────────────────────────────────────
   const timeline   = buildTimeline(day.dayOfWeek, planned, day.tuitionOverride);
   const studyItems = timeline.filter(i => !i.isTuition && i.startMin !== -1);
@@ -1388,21 +1430,32 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
               {/* Planned item checkboxes */}
               {planned.length > 0 && (
                 <div style={{marginBottom:12}}>
-                  <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Mark as Done</div>
+                  <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Sessions</div>
                   {planned.map((item, i) => {
                     const isDone = completed.includes(item);
                     return (
-                      <label key={i} style={{display:'flex', alignItems:'flex-start', gap:8, marginBottom:5, cursor:'pointer'}}>
-                        <input
-                          type="checkbox"
-                          checked={isDone}
-                          onChange={() => toggleItem(item)}
-                          style={{marginTop:2, accentColor:'#5BAD6F', flexShrink:0}}
-                        />
-                        <span style={{fontSize:12, color: isDone ? '#5BAD6F' : '#333', textDecoration: isDone ? 'line-through' : 'none', lineHeight:1.4}}>
-                          {item}
-                        </span>
-                      </label>
+                      <div key={i} style={{display:'flex', alignItems:'flex-start', gap:6, marginBottom:5}}>
+                        <label style={{display:'flex', alignItems:'flex-start', gap:8, flex:1, cursor:'pointer'}}>
+                          <input
+                            type="checkbox"
+                            checked={isDone}
+                            onChange={() => toggleItem(item)}
+                            style={{marginTop:2, accentColor:'#5BAD6F', flexShrink:0}}
+                          />
+                          <span style={{fontSize:12, color: isDone ? '#5BAD6F' : '#333', textDecoration: isDone ? 'line-through' : 'none', lineHeight:1.4}}>
+                            {item}
+                          </span>
+                        </label>
+                        <button
+                          onClick={() => deleteItem(item)}
+                          title="Delete this session (remaining sessions will shift to fill the gap)"
+                          style={{flexShrink:0, background:'none', border:'none', cursor:'pointer',
+                            fontSize:13, color:'#CCC', padding:'1px 3px', lineHeight:1,
+                            borderRadius:3, transition:'color 0.15s'}}
+                          onMouseOver={e => e.target.style.color='#E05C20'}
+                          onMouseOut={e => e.target.style.color='#CCC'}
+                        >🗑</button>
+                      </div>
                     );
                   })}
                 </div>
