@@ -1583,6 +1583,7 @@ function App() {
   const [editMode,  setEditMode]  = useState(false);
   const [overrides, setOverrides] = useState(() => loadOverrides());
   const [syncing,   setSyncing]   = useState(false);
+  const [history,   setHistory]   = useState([]);   // undo stack (in-memory)
 
   // On mount: pull latest from Firebase (overrides local cache)
   useEffect(() => {
@@ -1598,10 +1599,21 @@ function App() {
   }, []);
 
   function updateOverride(dateStr, patch) {
+    // Snapshot current state onto the undo stack (keep last 30)
+    setHistory(h => [...h.slice(-29), overrides]);
     const next = { ...overrides, [dateStr]: patch };
     setOverrides(next);
     saveLocal(next);
-    pushRemote(next); // fire-and-forget; syncs to all devices
+    pushRemote(next);
+  }
+
+  function undo() {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory(h => h.slice(0, -1));
+    setOverrides(prev);
+    saveLocal(prev);
+    pushRemote(prev);
   }
 
   useEffect(() => {
@@ -1627,34 +1639,39 @@ function App() {
             <div className="header-date">{todayStr}</div>
             {SYNC_URL && <span style={{fontSize:10, color: syncing ? '#F0A500' : '#5BAD6F'}}>{syncing ? '⟳ syncing…' : '☁ synced'}</span>}
           </div>
-          <button
-            onClick={() => {
-              if (!editMode && SYNC_URL) {
-                setSyncing(true);
-                fetchRemote().then(remote => {
-                  if (remote && Object.keys(remote).length > 0) {
-                    setOverrides(remote);
-                    saveLocal(remote);
-                  }
-                  setSyncing(false);
-                });
-              }
-              setEditMode(e => !e);
-            }}
-            style={{
-              padding:'5px 14px',
-              fontSize:11.5,
-              fontWeight:700,
-              borderRadius:6,
-              border: editMode ? '2px solid #4A90D9' : '1.5px solid #CCC',
-              background: editMode ? '#EAF3FF' : '#FAFAFA',
-              color: editMode ? '#1A5AAA' : '#777',
-              cursor:'pointer',
-              letterSpacing:0.3,
-            }}
-          >
-            {editMode ? '✅ Done Editing' : '✏️ Edit Plan'}
-          </button>
+          <div style={{display:'flex', gap:6}}>
+            {history.length > 0 && (
+              <button onClick={undo} title={`Undo last change (${history.length} available)`} style={{
+                padding:'5px 12px', fontSize:11.5, fontWeight:700, borderRadius:6,
+                border:'1.5px solid #E8B86D', background:'#FFF8EE', color:'#8A5A00',
+                cursor:'pointer', letterSpacing:0.3,
+              }}>↩ Undo{history.length > 1 ? ` (${history.length})` : ''}</button>
+            )}
+            <button
+              onClick={() => {
+                if (!editMode && SYNC_URL) {
+                  setSyncing(true);
+                  fetchRemote().then(remote => {
+                    if (remote && Object.keys(remote).length > 0) {
+                      setOverrides(remote);
+                      saveLocal(remote);
+                    }
+                    setSyncing(false);
+                  });
+                }
+                setEditMode(e => !e);
+              }}
+              style={{
+                padding:'5px 14px', fontSize:11.5, fontWeight:700, borderRadius:6,
+                border: editMode ? '2px solid #4A90D9' : '1.5px solid #CCC',
+                background: editMode ? '#EAF3FF' : '#FAFAFA',
+                color: editMode ? '#1A5AAA' : '#777',
+                cursor:'pointer', letterSpacing:0.3,
+              }}
+            >
+              {editMode ? '✅ Done Editing' : '✏️ Edit Plan'}
+            </button>
+          </div>
         </div>
       </div>
 
