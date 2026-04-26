@@ -1674,31 +1674,73 @@ function TrackerRow({ item }) {
 
 /* ── Add Task Panel ───────────────────────────────────────────────────── */
 function AddTaskPanel({ overrides, onScheduled }) {
-  const [taskText, setTaskText]   = useState('');
-  const [duration, setDuration]   = useState(60);
-  const [deadline, setDeadline]   = useState('');
-  const [result,   setResult]     = useState(null);
+  const [taskText,    setTaskText]    = useState('');
+  const [mode,        setMode]        = useState('auto');   // 'auto' | 'pinned'
+  const [duration,    setDuration]    = useState(60);
+  const [deadline,    setDeadline]    = useState('');
+  const [pinDay,      setPinDay]      = useState(TODAY);
+  const [pinStart,    setPinStart]    = useState('');
+  const [pinEnd,      setPinEnd]      = useState('');
+  const [result,      setResult]      = useState(null);
 
   const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dLabel   = ds => { const d = new Date(ds+'T00:00:00'); return `${dayNames[d.getDay()]} ${fmtShort(ds)}`; };
+  const durLabel = d  => d < 60 ? `${d}m` : d === 60 ? '1 hr' : `${d/60} hr`;
 
-  function handle() {
+  // When user types e.g. "4" or "4:30" normalise to "HH:MM"
+  function normaliseTime(raw) {
+    const t = raw.trim().replace('.', ':');
+    if (/^\d{1,2}$/.test(t)) {
+      const h = parseInt(t);
+      return h < 24 ? `${String(h).padStart(2,'0')}:00` : '';
+    }
+    if (/^\d{1,2}:\d{2}$/.test(t)) {
+      const [h, m] = t.split(':').map(Number);
+      return (h < 24 && m < 60) ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` : '';
+    }
+    return '';
+  }
+
+  function handleAuto() {
     const text = taskText.trim();
     if (!text) return;
     const res = smartSchedule(overrides, text, duration, deadline || null);
     if (res) {
       onScheduled(res);
-      const d = new Date(res.ds + 'T00:00:00');
-      setResult({ ok: true, ds: res.ds, day: dayNames[d.getDay()], itemText: res.itemText, method: res.method,
-        actualMins: res.actualMins, requestedMins: res.requestedMins });
-      setTaskText('');
-      setDeadline('');
+      setResult({ ok: true, ds: res.ds, itemText: res.itemText, method: res.method,
+        movedSession: res.movedSession, movedTo: res.movedTo, trimmedBy: res.trimmedBy });
+      setTaskText(''); setDeadline('');
     } else {
       setResult({ ok: false, deadline: deadline || null });
     }
     setTimeout(() => setResult(null), 6000);
   }
 
-  const durLabel = d => d < 60 ? `${d}m` : d === 60 ? '1 hr' : `${d/60} hr`;
+  function handlePinned() {
+    const text = taskText.trim();
+    if (!text || !pinStart || !pinEnd) return;
+    const start = normaliseTime(pinStart) || pinStart;
+    const end   = normaliseTime(pinEnd)   || pinEnd;
+    if (!start || !end) return;
+    const itemText = `${start}–${end} — ${text}`;
+    const ov = overrides[pinDay] || {};
+    onScheduled({
+      ds: pinDay, itemText, method: 'pinned',
+      patches: { [pinDay]: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } },
+    });
+    setResult({ ok: true, ds: pinDay, itemText, method: 'pinned' });
+    setTaskText(''); setPinStart(''); setPinEnd('');
+    setTimeout(() => setResult(null), 5000);
+  }
+
+  const inputStyle = { fontSize:12, padding:'5px 8px', borderRadius:5, border:'1px solid #CDD',
+    fontFamily:'inherit', outline:'none', background:'#FFF' };
+  const modeBtn = active => ({
+    padding:'4px 14px', fontSize:11.5, fontWeight:700, borderRadius:5, cursor:'pointer',
+    border: active ? '2px solid #4A90D9' : '1px solid #DDD',
+    background: active ? '#EAF3FF' : '#FAFAFA',
+    color: active ? '#1A5AAA' : '#888',
+  });
 
   return (
     <div className="card" style={{marginBottom:12, background:'#FAFCFF', border:'1.5px solid #D8E6F5'}}>
@@ -1706,61 +1748,84 @@ function AddTaskPanel({ overrides, onScheduled }) {
         ➕ Add to My Schedule
       </div>
 
+      {/* Task text */}
       <input
         type="text"
         value={taskText}
         onChange={e => { setTaskText(e.target.value); setResult(null); }}
-        onKeyDown={e => { if (e.key === 'Enter') handle(); }}
+        onKeyDown={e => { if (e.key === 'Enter') mode === 'auto' ? handleAuto() : handlePinned(); }}
         placeholder='What do you need to do? e.g. "French HW" or "Eco: past paper"'
         style={{width:'100%', fontSize:12.5, padding:'8px 10px', borderRadius:6,
           border:'1.5px solid #CDD', fontFamily:'inherit', outline:'none', boxSizing:'border-box'}}
       />
 
-      <div style={{display:'flex', gap:6, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
-        <span style={{fontSize:10.5, color:'#AAA', marginRight:2}}>Duration:</span>
-        {[30, 45, 60, 90, 120].map(d => (
-          <button key={d} onClick={() => setDuration(d)} style={{
-            padding:'4px 10px', fontSize:11.5, borderRadius:5, fontWeight: duration===d ? 700 : 400,
-            border: duration===d ? '2px solid #4A90D9' : '1px solid #DDD',
-            background: duration===d ? '#EAF3FF' : '#FAFAFA',
-            color: duration===d ? '#1A5AAA' : '#888', cursor:'pointer',
-          }}>{durLabel(d)}</button>
-        ))}
+      {/* Mode toggle */}
+      <div style={{display:'flex', gap:6, marginTop:8}}>
+        <button style={modeBtn(mode==='auto')}    onClick={() => { setMode('auto');   setResult(null); }}>🤖 Auto-schedule</button>
+        <button style={modeBtn(mode==='pinned')}  onClick={() => { setMode('pinned'); setResult(null); }}>📌 Specific time</button>
       </div>
 
-      <div style={{display:'flex', gap:8, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
-        <div style={{display:'flex', alignItems:'center', gap:6, flex:1}}>
-          <span style={{fontSize:10.5, color:'#AAA', whiteSpace:'nowrap'}}>📅 Due before:</span>
-          <input
-            type="date"
-            value={deadline}
-            min={TODAY}
-            onChange={e => { setDeadline(e.target.value); setResult(null); }}
-            style={{fontSize:12, padding:'5px 8px', borderRadius:5, border:'1px solid #CDD',
-              fontFamily:'inherit', outline:'none', color: deadline ? '#1A2535' : '#BBB', flex:1}}
-          />
-          {deadline && (
-            <button onClick={() => setDeadline('')} style={{fontSize:11, color:'#AAA', background:'none',
-              border:'none', cursor:'pointer', padding:'2px 4px'}}>✕</button>
-          )}
+      {/* AUTO mode */}
+      {mode === 'auto' && (<>
+        <div style={{display:'flex', gap:6, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
+          <span style={{fontSize:10.5, color:'#AAA', marginRight:2}}>Duration:</span>
+          {[30, 45, 60, 90, 120].map(d => (
+            <button key={d} onClick={() => setDuration(d)} style={{
+              padding:'4px 10px', fontSize:11.5, borderRadius:5, fontWeight: duration===d ? 700 : 400,
+              border: duration===d ? '2px solid #4A90D9' : '1px solid #DDD',
+              background: duration===d ? '#EAF3FF' : '#FAFAFA',
+              color: duration===d ? '#1A5AAA' : '#888', cursor:'pointer',
+            }}>{durLabel(d)}</button>
+          ))}
         </div>
-        <button onClick={handle} style={{
-          padding:'7px 18px', background:'#4A90D9', color:'#FFF',
-          border:'none', borderRadius:6, fontSize:12.5, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap',
-        }}>Schedule →</button>
-      </div>
+        <div style={{display:'flex', gap:8, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
+          <div style={{display:'flex', alignItems:'center', gap:6, flex:1}}>
+            <span style={{fontSize:10.5, color:'#AAA', whiteSpace:'nowrap'}}>📅 Due before:</span>
+            <input type="date" value={deadline} min={TODAY}
+              onChange={e => { setDeadline(e.target.value); setResult(null); }}
+              style={{...inputStyle, color: deadline ? '#1A2535' : '#BBB', flex:1}} />
+            {deadline && <button onClick={() => setDeadline('')}
+              style={{fontSize:11, color:'#AAA', background:'none', border:'none', cursor:'pointer'}}>✕</button>}
+          </div>
+          <button onClick={handleAuto} style={{padding:'7px 18px', background:'#4A90D9', color:'#FFF',
+            border:'none', borderRadius:6, fontSize:12.5, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap'}}>
+            Schedule →
+          </button>
+        </div>
+      </>)}
 
+      {/* PINNED mode */}
+      {mode === 'pinned' && (
+        <div style={{display:'flex', gap:8, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
+          <input type="date" value={pinDay} min={TODAY}
+            onChange={e => setPinDay(e.target.value)}
+            style={{...inputStyle}} />
+          <input type="time" value={pinStart}
+            onChange={e => setPinStart(e.target.value)}
+            placeholder="From"
+            style={{...inputStyle, width:90}} />
+          <span style={{color:'#AAA', fontSize:13}}>–</span>
+          <input type="time" value={pinEnd}
+            onChange={e => setPinEnd(e.target.value)}
+            placeholder="To"
+            style={{...inputStyle, width:90}} />
+          <button onClick={handlePinned}
+            disabled={!pinStart || !pinEnd}
+            style={{padding:'7px 16px', background: pinStart && pinEnd ? '#5BAD6F' : '#CCC',
+              color:'#FFF', border:'none', borderRadius:6, fontSize:12.5, fontWeight:700,
+              cursor: pinStart && pinEnd ? 'pointer' : 'default', whiteSpace:'nowrap'}}>
+            Add →
+          </button>
+        </div>
+      )}
+
+      {/* Result banner */}
       {result && result.ok && (() => {
         const timeStr = result.itemText.match(/^(\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2})/)?.[1] || '';
-        const dayNames2 = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        const dLabel = ds => { const d = new Date(ds+'T00:00:00'); return `${dayNames2[d.getDay()]} ${fmtShort(ds)}`; };
         let note = null;
-        if (result.method === 'rearranged')
-          note = 'reshuffled existing sessions to fit';
-        else if (result.method === 'trimmed')
-          note = `trimmed another session by ${result.trimmedBy} min to make room`;
-        else if (result.method === 'moved')
-          note = `moved "${parseItem(result.movedSession).label}" to ${dLabel(result.movedTo.ds)} to free up the slot`;
+        if (result.method === 'rearranged') note = 'reshuffled existing sessions to fit';
+        else if (result.method === 'trimmed') note = `trimmed another session by ${result.trimmedBy} min to make room`;
+        else if (result.method === 'moved') note = `moved "${parseItem(result.movedSession).label}" to ${dLabel(result.movedTo.ds)} to free up the slot`;
         return (
           <div style={{marginTop:8, fontSize:12, color:'#1A6A38', background:'#E8F5EC', padding:'7px 10px', borderRadius:6}}>
             <div>✅ <strong>{dLabel(result.ds)}</strong> at {timeStr}</div>
