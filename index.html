@@ -949,9 +949,9 @@ function parseFreeWindow(fw) {
   return { startMin: toMin(m[1]), endMin: toMin(m[2]) };
 }
 
-function scheduleTask(overrides, taskText, durationMins) {
+function scheduleTask(overrides, taskText, durationMins, deadline) {
   const sortedDays = Object.entries(DATA.days)
-    .filter(([ds]) => ds >= TODAY)
+    .filter(([ds]) => ds >= TODAY && (!deadline || ds <= deadline))
     .sort(([a],[b]) => a.localeCompare(b));
 
   for (const [ds, day] of sortedDays) {
@@ -1406,6 +1406,7 @@ function TrackerRow({ item }) {
 function AddTaskPanel({ overrides, onScheduled }) {
   const [taskText, setTaskText]   = useState('');
   const [duration, setDuration]   = useState(60);
+  const [deadline, setDeadline]   = useState('');
   const [result,   setResult]     = useState(null);
 
   const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1413,17 +1414,18 @@ function AddTaskPanel({ overrides, onScheduled }) {
   function handle() {
     const text = taskText.trim();
     if (!text) return;
-    const slot = scheduleTask(overrides, text, duration);
+    const slot = scheduleTask(overrides, text, duration, deadline || null);
     if (slot) {
       const itemText = `${slot.start}–${slot.end} — ${text}`;
       onScheduled(slot.ds, itemText);
       const d = new Date(slot.ds + 'T00:00:00');
       setResult({ ok: true, ds: slot.ds, day: dayNames[d.getDay()], start: slot.start, end: slot.end });
       setTaskText('');
+      setDeadline('');
     } else {
-      setResult({ ok: false });
+      setResult({ ok: false, deadline: deadline || null });
     }
-    setTimeout(() => setResult(null), 4000);
+    setTimeout(() => setResult(null), 5000);
   }
 
   const durLabel = d => d < 60 ? `${d}m` : d === 60 ? '1 hr' : `${d/60} hr`;
@@ -1439,7 +1441,7 @@ function AddTaskPanel({ overrides, onScheduled }) {
         value={taskText}
         onChange={e => { setTaskText(e.target.value); setResult(null); }}
         onKeyDown={e => { if (e.key === 'Enter') handle(); }}
-        placeholder='What do you need to study? e.g. "French: vocab" or "Eco: past paper"'
+        placeholder='What do you need to do? e.g. "French HW" or "Eco: past paper"'
         style={{width:'100%', fontSize:12.5, padding:'8px 10px', borderRadius:6,
           border:'1.5px solid #CDD', fontFamily:'inherit', outline:'none', boxSizing:'border-box'}}
       />
@@ -1454,9 +1456,27 @@ function AddTaskPanel({ overrides, onScheduled }) {
             color: duration===d ? '#1A5AAA' : '#888', cursor:'pointer',
           }}>{durLabel(d)}</button>
         ))}
+      </div>
+
+      <div style={{display:'flex', gap:8, marginTop:8, alignItems:'center', flexWrap:'wrap'}}>
+        <div style={{display:'flex', alignItems:'center', gap:6, flex:1}}>
+          <span style={{fontSize:10.5, color:'#AAA', whiteSpace:'nowrap'}}>📅 Due before:</span>
+          <input
+            type="date"
+            value={deadline}
+            min={TODAY}
+            onChange={e => { setDeadline(e.target.value); setResult(null); }}
+            style={{fontSize:12, padding:'5px 8px', borderRadius:5, border:'1px solid #CDD',
+              fontFamily:'inherit', outline:'none', color: deadline ? '#1A2535' : '#BBB', flex:1}}
+          />
+          {deadline && (
+            <button onClick={() => setDeadline('')} style={{fontSize:11, color:'#AAA', background:'none',
+              border:'none', cursor:'pointer', padding:'2px 4px'}}>✕</button>
+          )}
+        </div>
         <button onClick={handle} style={{
-          marginLeft:'auto', padding:'7px 18px', background:'#4A90D9', color:'#FFF',
-          border:'none', borderRadius:6, fontSize:12.5, fontWeight:700, cursor:'pointer',
+          padding:'7px 18px', background:'#4A90D9', color:'#FFF',
+          border:'none', borderRadius:6, fontSize:12.5, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap',
         }}>Schedule →</button>
       </div>
 
@@ -1469,7 +1489,7 @@ function AddTaskPanel({ overrides, onScheduled }) {
       {result && !result.ok && (
         <div style={{marginTop:8, fontSize:12, color:'#922B21', background:'#FADBD8',
           padding:'7px 10px', borderRadius:6}}>
-          ⚠️ No free slot found in the coming days. Try a shorter duration.
+          ⚠️ No free slot found {result.deadline ? `before ${fmtShort(result.deadline)}` : 'in the coming days'}. Try a shorter duration{result.deadline ? ' or a later deadline' : ''}.
         </div>
       )}
     </div>
