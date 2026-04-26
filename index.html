@@ -612,27 +612,28 @@ const DATA = {
         '19:15–19:45 — Add Math: Trig (exact values, identities), circular measure 📚🔴',
       ], completed:[], note:'Math tuition 09:00–10:30 (one hour earlier than usual).' },
 
-    '2026-04-26': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–22:30 (8.5 hrs)'],
+    '2026-04-26': { dayOfWeek:'Sunday',    status:'upcoming', freeWindows:['10:00–10:45 (45 min)','14:00–16:30 (2.5 hrs)','19:30–22:00 (2.5 hrs)'],
       planned:[
         '10:00–10:45 — French Speaking: Full mock oral, all 5 topic areas ⚠️',
-        '14:00–15:00 — Homework',
-        '15:00–17:00 — English Lit: Poetry — all 8 poems: themes, language techniques, 2 quotes each 📚🔴',
-        '17:00–19:00 — Add Math: Calculus — differentiation + integration full practice 📚🔴',
-        '19:00–20:30 — Economics: Essay practice — 8-mark structured answers 📚🔴',
-        '20:30–22:00 — English Language: Comprehension + writer\'s effect + summary techniques 📚🟡',
-      ], completed:[], note:'' },
+        '14:00–16:00 — English Lit: Poetry — all 8 poems: themes, language techniques, 2 quotes each 📚🔴',
+        '16:30–17:30 — Break 🛑',
+        '18:00–19:30 — Economics: Essay practice — 8-mark structured answers 📚🔴',
+        '19:30–21:30 — Add Math: Calculus — differentiation + integration full practice 📚🔴',
+        '21:30–22:00 — English Language: Comprehension + writer\'s effect (60 min cut — continued Apr 27) 📚🟡',
+      ], completed:[], note:'Break 16:30–17:30. English Language shortened by 60 min — carried forward to Apr 27.' },
 
-    '2026-04-27': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['18:45–22:30 (3.75 hrs)'],
+    '2026-04-27': { dayOfWeek:'Monday',    status:'upcoming', freeWindows:['14:00–16:15 (2.25 hrs)','18:45–22:30 (3.75 hrs)'],
       tuitionOverride:[
         { type:'travel',  emoji:'🚶', label:'Travel to Economics tuition', start:'16:15', end:'16:30', dotColor:'#CCC' },
         { type:'tuition', emoji:'📐', label:'Economics Tuition',           start:'16:30', end:'18:30', dotColor:'#C8A000', subject:'Economics', bg:'#FFFAE0' },
         { type:'travel',  emoji:'🚶', label:'Travel home',                 start:'18:30', end:'18:45', dotColor:'#CCC' },
       ],
       planned:[
+        '14:00–15:00 — English Language: Comprehension + writer\'s effect continued (carry-forward from Apr 26) 📚🟡',
+        '15:00–16:00 — French Speaking: Topic areas + pronunciation drills ⚠️',
         '18:45–20:30 — English Lit: Drama + Poetry revision 📚🔴',
         '20:30–22:15 — Add Math: No-calc revision 📚🔴',
-        '22:15–22:30 — French Speaking: Vocabulary list + key phrases ⚠️',
-      ], completed:[], note:'Last regular school day. Economics tuition 16:30–18:30.' },
+      ], completed:[], note:'Last regular school day. Economics tuition 16:30–18:30. Afternoon slot free (no homework from today onwards) — English Language carry-forward + French Speaking practice.' },
 
     '2026-04-28': { dayOfWeek:'Tuesday',   status:'upcoming', freeWindows:['10:00–16:30','18:15–19:00 (45 min)','21:15–22:30 (1.25 hrs)'],
       tuitionOverride:[
@@ -1599,7 +1600,7 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
               </div>
 
               {/* Add new session */}
-              <div>
+              <div style={{marginBottom:10}}>
                 <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Add a Session</div>
                 <div style={{display:'flex', gap:6}}>
                   <input
@@ -1618,6 +1619,24 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
                   </button>
                 </div>
               </div>
+
+              {/* Reset override */}
+              {override && (
+                <div style={{borderTop:'1px solid #E8EEF8', paddingTop:10}}>
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Reset this day to its original schedule? All custom overrides (rearrangements, added sessions) will be cleared.')) {
+                        onSave(null);
+                      }
+                    }}
+                    style={{fontSize:11, color:'#A03010', background:'#FFF5F2', border:'1.5px solid #E8C0B0',
+                      borderRadius:5, padding:'4px 10px', cursor:'pointer', fontWeight:600}}
+                  >
+                    🔄 Reset Day to Original
+                  </button>
+                  <div style={{fontSize:10, color:'#BBB', marginTop:3}}>Clears any saved overrides for this day (undo-able)</div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1682,6 +1701,20 @@ function AddTaskPanel({ overrides, onScheduled }) {
   const [pinStart,    setPinStart]    = useState('');
   const [pinEnd,      setPinEnd]      = useState('');
   const [result,      setResult]      = useState(null);
+
+  // Listen for debt "Schedule" button — prefills the panel
+  useEffect(() => {
+    function onPrefill(e) {
+      const { text, duration: dur } = e.detail;
+      setTaskText(text);
+      setDuration(dur);
+      setMode('auto');
+      setResult(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.addEventListener('prefillTask', onPrefill);
+    return () => window.removeEventListener('prefillTask', onPrefill);
+  }, []);
 
   const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const dLabel   = ds => { const d = new Date(ds+'T00:00:00'); return `${dayNames[d.getDay()]} ${fmtShort(ds)}`; };
@@ -1768,6 +1801,26 @@ function AddTaskPanel({ overrides, onScheduled }) {
       if (JSON.stringify(patch) !== JSON.stringify(overrides[ds] || null)) {
         patches[ds] = patch;
       }
+    }
+
+    // 5. Record any sessions that couldn't be rescheduled as carry-forward debts
+    if (failed.length > 0) {
+      const existingDebts = overrides['_debts'] || [];
+      const newDebts = failed.map(f => {
+        const { label } = parseItem(f);
+        const rm = f.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+        const dur = rm ? toMin(rm[2]) - toMin(rm[1]) : 60;
+        return {
+          id: `${Date.now()}-${Math.floor(Math.random()*10000)}`,
+          subject: label,
+          minutes: dur,
+          reason: `Displaced by "${text}" pinned at ${start}–${end} on ${pinDay}`,
+          sourceDate: pinDay,
+          createdAt: new Date().toISOString(),
+          resolved: false,
+        };
+      });
+      patches['_debts'] = [...existingDebts, ...newDebts];
     }
 
     onScheduled({ ds: pinDay, itemText: pinnedItem, method: 'pinned', patches });
@@ -1980,6 +2033,70 @@ function StudyTracker() {
   );
 }
 
+/* ── Debt / Carry-forward Panel ───────────────────────────────────────── */
+function DebtPanel({ overrides, onApplyPatches }) {
+  const debts = (overrides['_debts'] || []).filter(d => !d.resolved);
+  if (debts.length === 0) return null;
+
+  function resolveDebt(id) {
+    const updated = (overrides['_debts'] || []).map(d => d.id === id ? { ...d, resolved: true } : d);
+    onApplyPatches({ '_debts': updated });
+  }
+
+  function scheduleDebt(debt) {
+    // Placeholder — opens the AddTaskPanel logic externally via a custom event
+    const ev = new CustomEvent('prefillTask', { detail: { text: debt.subject, duration: debt.minutes } });
+    window.dispatchEvent(ev);
+    resolveDebt(debt.id);
+  }
+
+  return (
+    <div className="card" style={{marginBottom:12, border:'2px solid #F0A500', background:'#FFFDF5'}}>
+      <div style={{padding:'10px 14px 0', fontSize:10.5, fontWeight:800, textTransform:'uppercase',
+        letterSpacing:0.8, color:'#B07800', display:'flex', alignItems:'center', gap:6}}>
+        ⏳ Make-up Needed
+        <span style={{background:'#F0A500', color:'white', borderRadius:10, fontSize:10,
+          fontWeight:800, padding:'1px 7px', marginLeft:4}}>{debts.length}</span>
+      </div>
+      <div style={{padding:'8px 14px 12px'}}>
+        <div style={{fontSize:11, color:'#888', marginBottom:10}}>
+          These sessions were displaced and couldn't be auto-rescheduled. Schedule them manually.
+        </div>
+        {debts.map(d => {
+          const hrs = d.minutes >= 60 ? `${Math.floor(d.minutes/60)}h${d.minutes%60 ? ` ${d.minutes%60}m` : ''}` : `${d.minutes}m`;
+          return (
+            <div key={d.id} style={{background:'white', border:'1px solid #F0D890', borderRadius:7,
+              padding:'8px 12px', marginBottom:8, display:'flex', alignItems:'flex-start', gap:10}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12.5, fontWeight:700, color:'#1A2535'}}>{d.subject}</div>
+                <div style={{fontSize:11, color:'#888', marginTop:1}}>{hrs} needed · {d.reason}</div>
+                <div style={{fontSize:10, color:'#BBB', marginTop:1}}>Logged {new Date(d.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+              </div>
+              <div style={{display:'flex', gap:6, flexShrink:0}}>
+                <button
+                  onClick={() => scheduleDebt(d)}
+                  style={{fontSize:11, fontWeight:700, color:'#1A5AAA', background:'#EAF3FF',
+                    border:'1.5px solid #B0CDF0', borderRadius:5, padding:'4px 9px', cursor:'pointer'}}
+                >
+                  📅 Schedule
+                </button>
+                <button
+                  onClick={() => resolveDebt(d.id)}
+                  style={{fontSize:11, color:'#888', background:'#F5F5F5', border:'1px solid #DDD',
+                    borderRadius:5, padding:'4px 9px', cursor:'pointer'}}
+                  title="Mark as no longer needed"
+                >
+                  ✓ Dismiss
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── App ──────────────────────────────────────────────────────────────── */
 function App() {
   const entries = Object.entries(DATA.days).sort(([a],[b]) => a.localeCompare(b));
@@ -2004,7 +2121,11 @@ function App() {
   function applyPatches(patches) {
     // Snapshot current state onto the undo stack (keep last 30)
     setHistory(h => [...h.slice(-29), overrides]);
-    const next = { ...overrides, ...patches };
+    const next = { ...overrides };
+    for (const [k, v] of Object.entries(patches)) {
+      if (v === null) delete next[k];   // null = clear this key entirely
+      else next[k] = v;
+    }
     setOverrides(next);
     saveLocal(next);
     pushRemote(next);
@@ -2093,6 +2214,10 @@ function App() {
           <AddTaskPanel
             overrides={overrides}
             onScheduled={(res) => applyPatches(res.patches)}
+          />
+          <DebtPanel
+            overrides={overrides}
+            onApplyPatches={applyPatches}
           />
           <StudyTracker />
           <div className="phase-div">School Test Phase · Apr 6 – Apr 28</div>
