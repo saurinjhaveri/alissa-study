@@ -1722,15 +1722,58 @@ function AddTaskPanel({ overrides, onScheduled }) {
     const start = normaliseTime(pinStart) || pinStart;
     const end   = normaliseTime(pinEnd)   || pinEnd;
     if (!start || !end) return;
-    const itemText = `${start}–${end} — ${text}`;
+    const startMin = toMin(start), endMin = toMin(end);
+    const pinnedItem = `${start}–${end} — ${text}`;
+
+    const day = DATA.days[pinDay];
+    if (!day) return;
+
+    // 1. Find any planned items that overlap the pinned slot
     const ov = overrides[pinDay] || {};
-    onScheduled({
-      ds: pinDay, itemText, method: 'pinned',
-      patches: { [pinDay]: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } },
-    });
-    setResult({ ok: true, ds: pinDay, itemText, method: 'pinned' });
+    const allPlanned = effectivePlanned(day, ov);
+    const conflicts = [], nonConflicts = [];
+    for (const p of allPlanned) {
+      const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+      if (!rm) { nonConflicts.push(p); continue; }
+      const s = toMin(rm[1]), e = toMin(rm[2]);
+      (s < endMin && e > startMin ? conflicts : nonConflicts).push(p);
+    }
+
+    // 2. Build working overrides: remove conflicts + add pinned item
+    let working = {
+      ...overrides,
+      [pinDay]: { ...ov, plannedOverride: nonConflicts, addedPlanned: [pinnedItem] },
+    };
+
+    // 3. Re-schedule each displaced item using the smart scheduler
+    const rescheduled = [], failed = [];
+    for (const conflict of conflicts) {
+      const { label } = parseItem(conflict);
+      const rm = conflict.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+      const dur = rm ? toMin(rm[2]) - toMin(rm[1]) : 60;
+      const res = smartSchedule(working, label, dur, null);
+      if (res) {
+        for (const [ds, patch] of Object.entries(res.patches)) {
+          working = { ...working, [ds]: patch };
+        }
+        rescheduled.push({ original: conflict, newText: res.itemText, ds: res.ds });
+      } else {
+        failed.push(conflict);
+      }
+    }
+
+    // 4. Collect all patches (only changed days)
+    const patches = {};
+    for (const [ds, patch] of Object.entries(working)) {
+      if (JSON.stringify(patch) !== JSON.stringify(overrides[ds] || null)) {
+        patches[ds] = patch;
+      }
+    }
+
+    onScheduled({ ds: pinDay, itemText: pinnedItem, method: 'pinned', patches });
+    setResult({ ok: true, ds: pinDay, itemText: pinnedItem, method: 'pinned', rescheduled, failed });
     setTaskText(''); setPinStart(''); setPinEnd('');
-    setTimeout(() => setResult(null), 5000);
+    setTimeout(() => setResult(null), 8000);
   }
 
   const inputStyle = { fontSize:12, padding:'5px 8px', borderRadius:5, border:'1px solid #CDD',
@@ -1830,6 +1873,20 @@ function AddTaskPanel({ overrides, onScheduled }) {
           <div style={{marginTop:8, fontSize:12, color:'#1A6A38', background:'#E8F5EC', padding:'7px 10px', borderRadius:6}}>
             <div>✅ <strong>{dLabel(result.ds)}</strong> at {timeStr}</div>
             {note && <div style={{fontSize:11, color:'#4A7A30', fontStyle:'italic', marginTop:2}}>↳ {note}</div>}
+            {result.rescheduled && result.rescheduled.length > 0 && (
+              <div style={{marginTop:4}}>
+                {result.rescheduled.map((r, i) => (
+                  <div key={i} style={{fontSize:11, color:'#4A7A30', fontStyle:'italic'}}>
+                    ↳ moved "{parseItem(r.original).label}" → {dLabel(r.ds)} {r.newText.match(/^(\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2})/)?.[1] || ''}
+                  </div>
+                ))}
+              </div>
+            )}
+            {result.failed && result.failed.length > 0 && (
+              <div style={{marginTop:4, fontSize:11, color:'#E05C20', fontStyle:'italic'}}>
+                ⚠️ Couldn't reschedule: {result.failed.map(f => parseItem(f).label).join(', ')} — remove or move manually
+              </div>
+            )}
           </div>
         );
       })()}
