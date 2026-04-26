@@ -732,7 +732,16 @@ const DATA = {
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
+
+/* ── localStorage overrides ──────────────────────────────────────────── */
+const LS_KEY = 'alissa_overrides_v1';
+function loadOverrides() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveOverrides(obj) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e) {}
+}
 
 /* ── Today (IST-safe) ─────────────────────────────────────────────────── */
 function getToday() {
@@ -934,11 +943,17 @@ function GradeProfile() {
   );
 }
 
-function HowTo() {
+function HowTo({ editMode }) {
+  if (editMode) {
+    return (
+      <div className="howto" style={{background:'#F0F7FF', borderColor:'#4A90D9'}}>
+        <strong>✏️ Edit mode on</strong> — tap any day's <em>Quick Update</em> panel to mark things done, change status, add sessions, or update notes. Changes save instantly.
+      </div>
+    );
+  }
   return (
     <div className="howto">
-      <strong>📝 How to update your plan:</strong> Just tell Claude each day what you did, didn't do, or want to study. Claude will update both this file and daily_log.json for you.
-      <br/>Example: <em>"Today I did the Economics notes but skipped Add Math. Tomorrow I want to focus on Physics."</em>
+      <strong>📝 How to update your plan:</strong> Hit <strong>✏️ Edit</strong> (top right) to update directly on this page — or just tell Claude what you did.
     </div>
   );
 }
@@ -1024,21 +1039,69 @@ function TlItem({ item, isLast }) {
 }
 
 /* ── Day card ─────────────────────────────────────────────────────────── */
-function DayCard({ dateStr, day }) {
+function DayCard({ dateStr, day, editMode, override, onSave }) {
   const isToday = dateStr === TODAY;
   const isPast  = dateStr < TODAY;
   const [open, setOpen] = useState(isToday || !isPast);
 
-  const timeline = buildTimeline(day.dayOfWeek, day.planned || [], day.tuitionOverride);
+  // ── Merge hard-coded data with localStorage override ──────────────────
+  const status    = (override && override.status    != null) ? override.status    : day.status;
+  const completed = (override && override.completed != null) ? override.completed : (day.completed || []);
+  const noteBase  = (override && override.note      != null) ? override.note      : (day.note || '');
+  const planned   = [...(day.planned || []), ...((override && override.addedPlanned) || [])];
+
+  // ── Edit panel local state ────────────────────────────────────────────
+  const [draftNote, setDraftNote] = useState(noteBase);
+  const [newItem,   setNewItem]   = useState('');
+  const noteRef = useRef(null);
+
+  // Sync draftNote if override changes externally
+  useEffect(() => { setDraftNote(noteBase); }, [noteBase]);
+
+  // ── Save helpers ──────────────────────────────────────────────────────
+  function setStatus(s) {
+    const base = override || {};
+    let comp = completed;
+    if (s === 'done')     comp = planned.slice();
+    if (s === 'upcoming') comp = [];
+    onSave({ ...base, status: s, completed: comp });
+  }
+
+  function toggleItem(item) {
+    const cur = new Set(completed);
+    if (cur.has(item)) cur.delete(item); else cur.add(item);
+    const newComp = [...cur];
+    const base = override || {};
+    let newStatus = status;
+    if (newComp.length === 0)           newStatus = 'upcoming';
+    else if (newComp.length >= planned.length) newStatus = 'done';
+    else                                newStatus = 'partial';
+    onSave({ ...base, completed: newComp, status: newStatus });
+  }
+
+  function saveNote() {
+    onSave({ ...(override || {}), note: draftNote });
+  }
+
+  function addItem() {
+    const text = newItem.trim();
+    if (!text) return;
+    const added = [...((override && override.addedPlanned) || []), text];
+    onSave({ ...(override || {}), addedPlanned: added });
+    setNewItem('');
+  }
+
+  // ── Derived display values ────────────────────────────────────────────
+  const timeline   = buildTimeline(day.dayOfWeek, planned, day.tuitionOverride);
   const studyItems = timeline.filter(i => !i.isTuition && i.startMin !== -1);
-  const done = (day.completed || []).length;
-  const total = studyItems.length;
-  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const doneCount  = completed.length;
+  const total      = studyItems.length;
+  const pct        = total > 0 ? Math.round(doneCount / total * 100) : 0;
 
   const statusBadge = () => {
-    if (day.status === 'missed')  return <span className="badge b-missed">🔴 Missed</span>;
-    if (day.status === 'done')    return <span className="badge b-done">🟢 Done</span>;
-    if (day.status === 'partial') return <span className="badge b-partial">🟡 Partial</span>;
+    if (status === 'missed')  return <span className="badge b-missed">🔴 Missed</span>;
+    if (status === 'done')    return <span className="badge b-done">🟢 Done</span>;
+    if (status === 'partial') return <span className="badge b-partial">🟡 Partial</span>;
     return <span className="badge b-up">Upcoming</span>;
   };
 
@@ -1049,13 +1112,30 @@ function DayCard({ dateStr, day }) {
   };
 
   const specialBadge = () => {
-    if (day.note === 'STUDY LEAVE — no school')  return <span className="badge b-sl">Study Leave</span>;
-    if ((day.note||'').toLowerCase().includes('holiday')) return <span className="badge b-hol">🎌 Holiday</span>;
-    if (day.note === 'Last regular school day')  return <span className="badge b-up">Last School Day</span>;
+    if (noteBase === 'STUDY LEAVE — no school')  return <span className="badge b-sl">Study Leave</span>;
+    if ((noteBase||'').toLowerCase().includes('holiday')) return <span className="badge b-hol">🎌 Holiday</span>;
+    if (noteBase === 'Last regular school day')  return <span className="badge b-up">Last School Day</span>;
     return null;
   };
 
-  const cardClass = ['day-card', isToday ? 'today' : '', day.status === 'missed' ? 'missed' : ''].join(' ').trim();
+  const cardClass = ['day-card', isToday ? 'today' : '', status === 'missed' ? 'missed' : ''].join(' ').trim();
+
+  // ── Status button style helper ────────────────────────────────────────
+  const sBtnStyle = (s) => ({
+    padding: '4px 10px',
+    fontSize: 11,
+    fontWeight: 700,
+    borderRadius: 5,
+    border: status === s ? '2px solid #333' : '1px solid #DDD',
+    background: status === s
+      ? (s==='done' ? '#D4EDDA' : s==='partial' ? '#FFF3CD' : s==='missed' ? '#FADBD8' : '#E8F4FC')
+      : '#FAFAFA',
+    color: status === s
+      ? (s==='done' ? '#1A6A2A' : s==='partial' ? '#7A5800' : s==='missed' ? '#922B21' : '#1A4F8A')
+      : '#999',
+    cursor: 'pointer',
+    opacity: status === s ? 1 : 0.6,
+  });
 
   return (
     <div className={cardClass} id={`day-${dateStr}`}>
@@ -1098,11 +1178,91 @@ function DayCard({ dateStr, day }) {
               </div>
             </>
           )}
-          {day.note && !['Last regular school day','Public Holiday','PUBLIC HOLIDAY','STUDY LEAVE — no school','Last exam day!'].includes(day.note) && (
-            <div className="day-note">{day.note}</div>
+          {noteBase && !['Last regular school day','Public Holiday','PUBLIC HOLIDAY','STUDY LEAVE — no school','Last exam day!'].includes(noteBase) && (
+            <div className="day-note">{noteBase}</div>
           )}
-          {day.note === 'Last exam day!' && (
+          {noteBase === 'Last exam day!' && (
             <div style={{textAlign:'center',padding:'10px 0',color:'#5BAD6F',fontWeight:700,fontSize:13}}>🎉 All exams done — celebrate!</div>
+          )}
+
+          {/* ── EDIT PANEL ─────────────────────────────────────────────── */}
+          {editMode && (
+            <div style={{marginTop:14, padding:'12px 14px', background:'#F7F9FF', borderRadius:8, border:'1.5px solid #D0DCEF'}}>
+              <div style={{fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:0.7, color:'#5A7ABB', marginBottom:10}}>
+                ✏️ Quick Update
+              </div>
+
+              {/* Status buttons */}
+              <div style={{marginBottom:12}}>
+                <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Day Status</div>
+                <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
+                  {['upcoming','partial','done','missed'].map(s => (
+                    <button key={s} style={sBtnStyle(s)} onClick={() => setStatus(s)}>
+                      {s==='done' ? '🟢 Done' : s==='partial' ? '🟡 Partial' : s==='missed' ? '🔴 Missed' : '🔵 Upcoming'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Planned item checkboxes */}
+              {planned.length > 0 && (
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Mark as Done</div>
+                  {planned.map((item, i) => {
+                    const isDone = completed.includes(item);
+                    return (
+                      <label key={i} style={{display:'flex', alignItems:'flex-start', gap:8, marginBottom:5, cursor:'pointer'}}>
+                        <input
+                          type="checkbox"
+                          checked={isDone}
+                          onChange={() => toggleItem(item)}
+                          style={{marginTop:2, accentColor:'#5BAD6F', flexShrink:0}}
+                        />
+                        <span style={{fontSize:12, color: isDone ? '#5BAD6F' : '#333', textDecoration: isDone ? 'line-through' : 'none', lineHeight:1.4}}>
+                          {item}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Note textarea */}
+              <div style={{marginBottom:12}}>
+                <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Day Note</div>
+                <textarea
+                  ref={noteRef}
+                  value={draftNote}
+                  onChange={e => setDraftNote(e.target.value)}
+                  onBlur={saveNote}
+                  rows={2}
+                  placeholder="Add a note for this day…"
+                  style={{width:'100%', fontSize:12, padding:'6px 8px', borderRadius:5, border:'1px solid #CDD', resize:'vertical', fontFamily:'inherit', boxSizing:'border-box', outline:'none'}}
+                />
+                <div style={{fontSize:10, color:'#BBB', marginTop:2}}>Auto-saves when you click away</div>
+              </div>
+
+              {/* Add new session */}
+              <div>
+                <div style={{fontSize:10.5, color:'#888', fontWeight:600, marginBottom:5}}>Add a Session</div>
+                <div style={{display:'flex', gap:6}}>
+                  <input
+                    type="text"
+                    value={newItem}
+                    onChange={e => setNewItem(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') addItem(); }}
+                    placeholder='e.g. "19:00–20:00 — French: vocab revision"'
+                    style={{flex:1, fontSize:12, padding:'6px 8px', borderRadius:5, border:'1px solid #CDD', fontFamily:'inherit', outline:'none'}}
+                  />
+                  <button
+                    onClick={addItem}
+                    style={{padding:'6px 12px', background:'#4A90D9', color:'#FFF', border:'none', borderRadius:5, fontSize:12, fontWeight:700, cursor:'pointer'}}
+                  >
+                    + Add
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
@@ -1240,6 +1400,14 @@ function StudyTracker() {
 /* ── App ──────────────────────────────────────────────────────────────── */
 function App() {
   const entries = Object.entries(DATA.days).sort(([a],[b]) => a.localeCompare(b));
+  const [editMode,  setEditMode]  = useState(false);
+  const [overrides, setOverrides] = useState(() => loadOverrides());
+
+  function updateOverride(dateStr, patch) {
+    const next = { ...overrides, [dateStr]: patch };
+    setOverrides(next);
+    saveOverrides(next);
+  }
 
   useEffect(() => {
     setTimeout(() => {
@@ -1259,7 +1427,25 @@ function App() {
           <div className="header-title">Alissa's Study Planner</div>
           <div className="header-sub">Grade IX IGCSE · Hill Spring International School</div>
         </div>
-        <div className="header-date">{todayStr}</div>
+        <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:8}}>
+          <div className="header-date">{todayStr}</div>
+          <button
+            onClick={() => setEditMode(e => !e)}
+            style={{
+              padding:'5px 14px',
+              fontSize:11.5,
+              fontWeight:700,
+              borderRadius:6,
+              border: editMode ? '2px solid #4A90D9' : '1.5px solid #CCC',
+              background: editMode ? '#EAF3FF' : '#FAFAFA',
+              color: editMode ? '#1A5AAA' : '#777',
+              cursor:'pointer',
+              letterSpacing:0.3,
+            }}
+          >
+            {editMode ? '✅ Done Editing' : '✏️ Edit Plan'}
+          </button>
+        </div>
       </div>
 
       <div className="layout">
@@ -1267,7 +1453,7 @@ function App() {
           <GradeProfile />
         </div>
         <div className="main">
-          <HowTo />
+          <HowTo editMode={editMode} />
           <Alerts />
           <TestsStrip />
           <StudyTracker />
@@ -1275,7 +1461,13 @@ function App() {
           {entries.map(([ds, day]) => (
             <React.Fragment key={ds}>
               {ds === '2026-04-29' && <div className="phase-div">Exam Phase · Apr 29 – May 20</div>}
-              <DayCard dateStr={ds} day={day} />
+              <DayCard
+                dateStr={ds}
+                day={day}
+                editMode={editMode}
+                override={overrides[ds]}
+                onSave={(patch) => updateOverride(ds, patch)}
+              />
             </React.Fragment>
           ))}
         </div>
