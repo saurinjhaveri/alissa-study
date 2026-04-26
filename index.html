@@ -949,27 +949,32 @@ function parseFreeWindow(fw) {
   return { startMin: toMin(m[1]), endMin: toMin(m[2]) };
 }
 
-function scheduleTask(overrides, taskText, durationMins, deadline) {
-  const sortedDays = Object.entries(DATA.days)
+// Returns sorted upcoming days filtered by deadline
+function sortedUpcoming(deadline) {
+  return Object.entries(DATA.days)
     .filter(([ds]) => ds >= TODAY && (!deadline || ds <= deadline))
     .sort(([a],[b]) => a.localeCompare(b));
+}
 
-  for (const [ds, day] of sortedDays) {
+// The full planned list for a day, accounting for any plannedOverride
+function effectivePlanned(day, ov) {
+  const base = (ov && ov.plannedOverride != null) ? ov.plannedOverride : (day.planned || []);
+  return [...base, ...((ov && ov.addedPlanned) || [])];
+}
+
+// Strategy 1: find a natural gap of exactly durationMins in any free window
+function tryNaturalFit(overrides, durationMins, deadline) {
+  for (const [ds, day] of sortedUpcoming(deadline)) {
     const ov = overrides[ds] || {};
-    const status = ov.status || day.status;
-    if (status === 'done' || status === 'missed') continue;
-    if (!day.freeWindows || day.freeWindows.length === 0) continue;
+    if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
+    if (!day.freeWindows || !day.freeWindows.length) continue;
 
-    const planned = [...(day.planned || []), ...(ov.addedPlanned || [])];
-
-    // Collect all already-used time ranges for this day
+    const planned = effectivePlanned(day, ov);
     const usedSlots = [];
     for (const p of planned) {
-      const { time } = parseItem(p);
-      const rm = time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+      const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
       if (rm) usedSlots.push({ s: toMin(rm[1]), e: toMin(rm[2]) });
     }
-    // Also block out tuition blocks
     const tuitionBlocks = day.tuitionOverride || TUITION_SCHEDULE[day.dayOfWeek] || [];
     for (const b of tuitionBlocks) {
       if (b.start && b.end) usedSlots.push({ s: toMin(b.start), e: toMin(b.end) });
@@ -978,28 +983,116 @@ function scheduleTask(overrides, taskText, durationMins, deadline) {
 
     for (const fw of day.freeWindows) {
       const win = parseFreeWindow(fw);
-      if (!win) continue;
-      if (win.endMin - win.startMin < durationMins) continue;
-
-      // Walk through the window looking for a gap big enough
-      let cursor = win.startMin;
-      let placed = null;
-      const relevant = usedSlots.filter(u => u.s < win.endMin && u.e > win.startMin);
-
-      for (const slot of relevant) {
+      if (!win || win.endMin - win.startMin < durationMins) continue;
+      let cursor = win.startMin, placed = null;
+      const rel = usedSlots.filter(u => u.s < win.endMin && u.e > win.startMin);
+      for (const slot of rel) {
         if (slot.s - cursor >= durationMins) { placed = cursor; break; }
         cursor = Math.max(cursor, slot.e);
       }
-      if (!placed && placed !== 0) {
-        if (win.endMin - cursor >= durationMins) placed = cursor;
-      }
-
-      if (placed !== null) {
-        return { ds, start: fromMin(placed), end: fromMin(placed + durationMins) };
-      }
+      if (placed === null && win.endMin - cursor >= durationMins) placed = cursor;
+      if (placed !== null) return { ds, startMin: placed };
     }
   }
   return null;
+}
+
+// Strategy 2: compact-pack existing items in a window to squeeze new task in
+function tryCompactPack(overrides, taskText, durationMins, deadline) {
+  for (const [ds, day] of sortedUpcoming(deadline)) {
+    const ov = overrides[ds] || {};
+    if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
+    if (!day.freeWindows || !day.freeWindows.length) continue;
+
+    const allPlanned = effectivePlanned(day, ov);
+
+    for (const fw of day.freeWindows) {
+      const win = parseFreeWindow(fw);
+      if (!win) continue;
+      const winDur = win.endMin - win.startMin;
+
+      // Split planned items into those inside this window vs outside
+      const inWin = [], outside = [];
+      for (const p of allPlanned) {
+        const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+        if (!rm) { outside.push(p); continue; }
+        const s = toMin(rm[1]), e = toMin(rm[2]);
+        if (s < win.endMin && e > win.startMin) {
+          inWin.push({ text: p, dur: Math.min(e, win.endMin) - Math.max(s, win.startMin) });
+        } else {
+          outside.push(p);
+        }
+      }
+
+      const totalUsed = inWin.reduce((s, i) => s + i.dur, 0);
+      if (totalUsed + durationMins > winDur) continue; // Can't fit even tightly
+
+      // Pack inWin items end-to-end from window start, append new task
+      let cursor = win.startMin;
+      const repacked = inWin.map(item => {
+        const retyped = item.text.replace(
+          /^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
+          `${fromMin(cursor)}–${fromMin(cursor + item.dur)}`
+        );
+        cursor += item.dur;
+        return retyped;
+      });
+      const newStart = cursor, newEnd = cursor + durationMins;
+      const newItem = `${fromMin(newStart)}–${fromMin(newEnd)} — ${taskText}`;
+      repacked.push(newItem);
+
+      // Build the new full planned list for this day
+      const newPlanned = [...outside, ...repacked];
+      const newOv = { ...ov, plannedOverride: newPlanned, addedPlanned: [] };
+      return { ds, startMin: newStart, endMin: newEnd, newOv, rearranged: true };
+    }
+  }
+  return null;
+}
+
+// Master scheduler: tries strategies in order, returns a result object or null
+function smartSchedule(overrides, taskText, durationMins, deadline) {
+  // 1. Natural fit at requested duration
+  const s1 = tryNaturalFit(overrides, durationMins, deadline);
+  if (s1) {
+    const ov = overrides[s1.ds] || {};
+    const itemText = `${fromMin(s1.startMin)}–${fromMin(s1.startMin + durationMins)} — ${taskText}`;
+    return { ds: s1.ds, itemText, method: 'normal',
+      patch: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } };
+  }
+
+  // 2. Compact-pack with requested duration
+  const s2 = tryCompactPack(overrides, taskText, durationMins, deadline);
+  if (s2) {
+    const itemText = `${fromMin(s2.startMin)}–${fromMin(s2.endMin)} — ${taskText}`;
+    return { ds: s2.ds, itemText, method: 'rearranged', patch: s2.newOv };
+  }
+
+  // 3. Shorten by up to 30 min and try again (natural then compact)
+  for (let shorter = durationMins - 15; shorter >= Math.max(15, durationMins - 30); shorter -= 15) {
+    const s3a = tryNaturalFit(overrides, shorter, deadline);
+    if (s3a) {
+      const ov = overrides[s3a.ds] || {};
+      const itemText = `${fromMin(s3a.startMin)}–${fromMin(s3a.startMin + shorter)} — ${taskText}`;
+      return { ds: s3a.ds, itemText, method: 'shortened', actualMins: shorter, requestedMins: durationMins,
+        patch: { ...ov, addedPlanned: [...(ov.addedPlanned || []), itemText] } };
+    }
+    const s3b = tryCompactPack(overrides, taskText, shorter, deadline);
+    if (s3b) {
+      const itemText = `${fromMin(s3b.startMin)}–${fromMin(s3b.endMin)} — ${taskText}`;
+      return { ds: s3b.ds, itemText, method: 'shortened+rearranged', actualMins: shorter, requestedMins: durationMins,
+        patch: s3b.newOv };
+    }
+  }
+
+  return null;
+}
+
+// (kept for backwards compat — used internally above as tryNaturalFit)
+function scheduleTask(overrides, taskText, durationMins, deadline) {
+  const r = tryNaturalFit(overrides, durationMins, deadline);
+  if (!r) return null;
+  return { ds: r.ds, start: fromMin(r.startMin), end: fromMin(r.startMin + durationMins) };
 }
 
 /* ══════════════════════ COMPONENTS ══════════════════════ */
@@ -1134,7 +1227,9 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
   const status    = (override && override.status    != null) ? override.status    : day.status;
   const completed = (override && override.completed != null) ? override.completed : (day.completed || []);
   const noteBase  = (override && override.note      != null) ? override.note      : (day.note || '');
-  const planned   = [...(day.planned || []), ...((override && override.addedPlanned) || [])];
+  // plannedOverride replaces day.planned when the scheduler has rearranged sessions
+  const plannedBase = (override && override.plannedOverride != null) ? override.plannedOverride : (day.planned || []);
+  const planned     = [...plannedBase, ...((override && override.addedPlanned) || [])];
 
   // ── Edit panel local state ────────────────────────────────────────────
   const [draftNote, setDraftNote] = useState(noteBase);
@@ -1414,18 +1509,18 @@ function AddTaskPanel({ overrides, onScheduled }) {
   function handle() {
     const text = taskText.trim();
     if (!text) return;
-    const slot = scheduleTask(overrides, text, duration, deadline || null);
-    if (slot) {
-      const itemText = `${slot.start}–${slot.end} — ${text}`;
-      onScheduled(slot.ds, itemText);
-      const d = new Date(slot.ds + 'T00:00:00');
-      setResult({ ok: true, ds: slot.ds, day: dayNames[d.getDay()], start: slot.start, end: slot.end });
+    const res = smartSchedule(overrides, text, duration, deadline || null);
+    if (res) {
+      onScheduled(res);
+      const d = new Date(res.ds + 'T00:00:00');
+      setResult({ ok: true, ds: res.ds, day: dayNames[d.getDay()], itemText: res.itemText, method: res.method,
+        actualMins: res.actualMins, requestedMins: res.requestedMins });
       setTaskText('');
       setDeadline('');
     } else {
       setResult({ ok: false, deadline: deadline || null });
     }
-    setTimeout(() => setResult(null), 5000);
+    setTimeout(() => setResult(null), 6000);
   }
 
   const durLabel = d => d < 60 ? `${d}m` : d === 60 ? '1 hr' : `${d/60} hr`;
@@ -1480,16 +1575,21 @@ function AddTaskPanel({ overrides, onScheduled }) {
         }}>Schedule →</button>
       </div>
 
-      {result && result.ok && (
-        <div style={{marginTop:8, fontSize:12, color:'#1A6A38', background:'#E8F5EC',
-          padding:'7px 10px', borderRadius:6, display:'flex', gap:6, alignItems:'center'}}>
-          ✅ Scheduled for <strong>{result.day} {fmtShort(result.ds)}</strong> at {result.start}–{result.end}
-        </div>
-      )}
+      {result && result.ok && (() => {
+        const timeStr = result.itemText.match(/^(\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2})/)?.[1] || '';
+        const note =
+          result.method === 'rearranged'           ? ' — reshuffled existing sessions to fit' :
+          result.method === 'shortened'            ? ` — shortened to ${result.actualMins} min to fit` :
+          result.method === 'shortened+rearranged' ? ` — reshuffled + shortened to ${result.actualMins} min` : '';
+        return (
+          <div style={{marginTop:8, fontSize:12, color:'#1A6A38', background:'#E8F5EC', padding:'7px 10px', borderRadius:6}}>
+            ✅ <strong>{result.day} {fmtShort(result.ds)}</strong> at {timeStr}{note && <span style={{color:'#4A7A30', fontStyle:'italic'}}>{note}</span>}
+          </div>
+        );
+      })()}
       {result && !result.ok && (
-        <div style={{marginTop:8, fontSize:12, color:'#922B21', background:'#FADBD8',
-          padding:'7px 10px', borderRadius:6}}>
-          ⚠️ No free slot found {result.deadline ? `before ${fmtShort(result.deadline)}` : 'in the coming days'}. Try a shorter duration{result.deadline ? ' or a later deadline' : ''}.
+        <div style={{marginTop:8, fontSize:12, color:'#922B21', background:'#FADBD8', padding:'7px 10px', borderRadius:6}}>
+          ⚠️ Couldn't fit this{result.deadline ? ` before ${fmtShort(result.deadline)}` : ' anywhere in the coming days'} — even after trying to rearrange. Try a different deadline or ask Claude to free up some time.
         </div>
       )}
     </div>
@@ -1685,11 +1785,7 @@ function App() {
           <TestsStrip />
           <AddTaskPanel
             overrides={overrides}
-            onScheduled={(ds, itemText) => {
-              const ov   = overrides[ds] || {};
-              const added = [...(ov.addedPlanned || []), itemText];
-              updateOverride(ds, { ...ov, addedPlanned: added });
-            }}
+            onScheduled={(res) => updateOverride(res.ds, res.patch)}
           />
           <StudyTracker />
           <div className="phase-div">School Test Phase · Apr 6 – Apr 28</div>
