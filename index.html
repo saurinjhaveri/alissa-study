@@ -948,6 +948,36 @@ function parseFreeWindow(fw) {
   return { startMin: toMin(m[1]), endMin: toMin(m[2]) };
 }
 
+// ── Exam deadlines — day BEFORE each exam so revision lands before the paper ──
+const SUBJECT_EXAM_DEADLINES = {
+  'french speaking':  '2026-04-28',  // exam Apr 29–30
+  'french':           '2026-05-14',  // written exams May 15
+  'english lit':      '2026-05-05',  // exam May 6
+  'english language': '2026-05-05',  // exam May 6
+  'add math':         '2026-05-05',  // exam May 6
+  'economics':        '2026-05-07',  // exam May 8
+  'int math':         '2026-05-06',  // exam May 7
+  'physics':          '2026-05-12',  // exam May 13
+  'chemistry':        '2026-05-13',  // exam May 14
+  'marathi':          '2026-05-10',  // exam May 11
+  'biology':          '2026-05-19',  // exam May 20
+};
+
+// Infer the latest sensible reschedule deadline from a session label.
+// Returns a date string, capped at the subject's exam date.
+// Falls back to a 14-day lookahead so we never schedule months away.
+function inferDeadline(label) {
+  const l = label.toLowerCase();
+  // Most specific first (french speaking before french)
+  for (const [subj, date] of Object.entries(SUBJECT_EXAM_DEADLINES)) {
+    if (l.includes(subj)) return date;
+  }
+  // No subject match — cap at 14 days so nothing drifts to exam season
+  const d = new Date(TODAY + 'T00:00:00');
+  d.setDate(d.getDate() + 14);
+  return d.toISOString().slice(0, 10);
+}
+
 // Returns sorted upcoming days filtered by deadline
 function sortedUpcoming(deadline) {
   return Object.entries(DATA.days)
@@ -1152,8 +1182,9 @@ function tryMoveExisting(overrides, taskText, durationMins, deadline) {
         const remaining = inWin.filter(i => i !== candidate).sort((a, b) => a.s - b.s);
         const totalAfter = remaining.reduce((s, i) => s + i.dur, 0);
         if (totalAfter + durationMins > win.endMin - win.startMin) continue;
-        // Find another day (not restricted by deadline) that can take the candidate
-        const futureDays = allDays.filter(([fds]) => fds > ds);
+        // Find another day to absorb the moved session — respect its own exam deadline
+        const candidateDeadline = inferDeadline(candidate.text);
+        const futureDays = allDays.filter(([fds]) => fds > ds && fds <= candidateDeadline);
         let moveTarget = null;
         for (const [fds, fday] of futureDays) {
           const fov = overrides[fds] || {};
@@ -1371,6 +1402,249 @@ function TlItem({ item, isLast }) {
   );
 }
 
+/* ── Verification system ──────────────────────────────────────────────── */
+const VERIFY_QUESTIONS = {
+  'add math': {
+    'calculus|differentiat|integrat': [
+      'What is the derivative of xⁿ (where n is a constant)?',
+      'State the chain rule in your own words.',
+      'What does a definite integral represent geometrically?',
+      'What is ∫xⁿ dx (for n ≠ −1)?',
+      'If f\'(x) > 0 on an interval, what does that tell you about f(x)?',
+    ],
+    'trig|circular|identit': [
+      'Complete the identity: sin²x + cos²x = ?',
+      'Express tan x in terms of sin x and cos x.',
+      'Give the exact value of sin 30°.',
+      'Give the exact value of cos 60°.',
+      'What is the period of y = sin x in radians?',
+    ],
+    'log|exponential': [
+      'State the product law of logarithms: log(ab) = ?',
+      'What is the inverse function of eˣ?',
+      'Evaluate: log₂(8).',
+      'State the power law: log(aⁿ) = ?',
+    ],
+    'function|quadratic': [
+      'What is the discriminant of ax² + bx + c, and what does it tell you?',
+      'Define a one-to-one function.',
+      'If f(x) = 2x + 1, find f⁻¹(x).',
+      'What condition must f(x) satisfy to have an inverse?',
+    ],
+    'no-calc|no calc|straight line|polynomial': [
+      'Give the exact value of sin 45°.',
+      'Give the exact value of tan 60°.',
+      'What is the derivative of sin x?',
+      'What is the derivative of eˣ?',
+    ],
+    '': [
+      'State one key formula from today\'s session.',
+      'Give one example of a problem type you practised.',
+      'What was the trickiest topic you covered today?',
+    ],
+  },
+  'english lit': {
+    'poet|poem': [
+      'Name one poem you revised today and state its main theme.',
+      'Give one language technique from any poem you studied.',
+      'Quote one line (or close paraphrase) from a poem you revised.',
+      'Name one structural feature of any poem you studied.',
+      'How does the poet create tension or emotion in the poem you revised?',
+    ],
+    'drama|midsummer|msnd|shakespeare': [
+      'Name one key scene from A Midsummer Night\'s Dream.',
+      'State one theme explored in MSND.',
+      'Quote or paraphrase one line from MSND.',
+      'Name one character and briefly describe their role.',
+    ],
+    'prose': [
+      'Name one key character from the prose text you revised.',
+      'State one theme from the prose text.',
+      'Describe one important moment you revised today.',
+    ],
+    '': [
+      'Name one text you revised and one theme from it.',
+      'Give one language or structural technique from today\'s session.',
+      'Quote or paraphrase one line from any text you studied.',
+    ],
+  },
+  'economics': {
+    'essay|8-mark|structured': [
+      'Define one key term relevant to the essay topic you practised.',
+      'State one point you would make in an 8-mark answer.',
+      'What evaluation point could counter your main argument?',
+      'Name one real-world example relevant to the essay topic.',
+    ],
+    'mcq|revision|ch |chapter|compreh|topic summ': [
+      'Define "opportunity cost".',
+      'What does PED stand for, and what does a value below 1 mean?',
+      'State one difference between a free market and a command economy.',
+      'What does GDP measure?',
+      'Define "inflation" and name one cause.',
+    ],
+    '': [
+      'Define one Economics term from today\'s session.',
+      'State one cause and one effect related to your topic.',
+      'Give one real-world example relevant to what you studied.',
+    ],
+  },
+  'french': {
+    '': [
+      'Write one sentence in French using vocabulary from today.',
+      'Name one grammar rule you practised today.',
+      'Give the French translation of one word you revised.',
+      'Conjugate one verb you practised today in the present tense.',
+    ],
+  },
+  'int math': {
+    'algebra|quadratic|sequence': [
+      'Solve: 2x + 5 = 13.',
+      'What is the quadratic formula?',
+      'Expand and simplify: (x + 3)(x − 2).',
+    ],
+    'coord|geometry|line': [
+      'What is the gradient formula between two points?',
+      'Write the equation of a straight line in the form y = mx + c.',
+      'What does the y-intercept represent on a graph?',
+    ],
+    '': [
+      'State one key formula or method from today\'s session.',
+      'Give an example of a problem you solved.',
+      'What was the trickiest concept in today\'s session?',
+    ],
+  },
+  'physics': {
+    '': [
+      'State one Physics law or principle you revised today.',
+      'Give one equation from today\'s topic and define each variable.',
+      'What units are used for the main quantity in today\'s topic?',
+    ],
+  },
+  'biology': {
+    '': [
+      'Name one key process or structure you revised today.',
+      'Define one Biology term from today\'s session.',
+      'Give one function of a structure you studied.',
+    ],
+  },
+  'marathi': {
+    '': [
+      'Write one sentence in Marathi related to today\'s material.',
+      'Name one grammar point you practised.',
+      'Summarise in English one prose or poem topic you revised.',
+    ],
+  },
+};
+
+function getVerifyType(label) {
+  const l = label.toLowerCase();
+  if (/break|lunch|dinner|travel|tuition|exam:|morning —|homework/.test(l)) return 'none';
+  if (l.includes('french speaking')) return 'text';
+  if (l.includes('english language')) return 'text';
+  return 'quiz';
+}
+
+function getTextPrompt(label) {
+  if (label.toLowerCase().includes('french speaking'))
+    return 'Describe in one sentence what you practised (topic area, key phrases, structure used):';
+  return 'In 1–2 sentences, describe one technique or skill you practised today:';
+}
+
+function pickQuestions(label) {
+  const l = label.toLowerCase();
+  let bucket = null;
+  for (const subj of Object.keys(VERIFY_QUESTIONS)) {
+    if (l.includes(subj)) { bucket = VERIFY_QUESTIONS[subj]; break; }
+  }
+  if (!bucket) {
+    return ['What was the main thing you practised in this session?',
+            'Name one concept or idea you can recall right now.'];
+  }
+  for (const [kws, qs] of Object.entries(bucket)) {
+    if (!kws) continue;
+    if (kws.split('|').some(k => l.includes(k))) {
+      const shuffled = [...qs].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 2);
+    }
+  }
+  const fallback = bucket[''] || ['What was the main thing you practised?', 'Name one key idea from today.'];
+  return [...fallback].sort(() => Math.random() - 0.5).slice(0, 2);
+}
+
+function VerifyPanel({ item, onDone }) {
+  const { label } = parseItem(item);
+  const vType  = getVerifyType(label);
+  const qs     = vType === 'quiz' ? pickQuestions(label) : [];
+  const prompt = vType === 'text' ? getTextPrompt(label) : '';
+
+  const [answers, setAnswers] = useState(() => qs.map(() => ''));
+  const [text,    setText]    = useState('');
+
+  const canSubmit = vType === 'quiz'
+    ? answers.every(a => a.trim().length > 1)
+    : text.trim().length > 5;
+
+  const subjLine = label.split(':')[0].trim();
+
+  return (
+    <div style={{background:'#EFF5FF', border:'1.5px solid #A8C4F0', borderRadius:8,
+      padding:'10px 12px', marginTop:5, marginBottom:2, marginLeft:22}}>
+      <div style={{fontSize:10, fontWeight:800, color:'#1A5AAA', textTransform:'uppercase',
+        letterSpacing:0.8, marginBottom:8}}>
+        ✅ Quick Check · {subjLine}
+      </div>
+
+      {vType === 'quiz' && qs.map((q, i) => (
+        <div key={i} style={{marginBottom:8}}>
+          <div style={{fontSize:11.5, color:'#1A2535', marginBottom:3, lineHeight:1.4}}>{i + 1}. {q}</div>
+          <input
+            value={answers[i]}
+            onChange={e => { const a = [...answers]; a[i] = e.target.value; setAnswers(a); }}
+            onKeyDown={e => { if (e.key === 'Enter' && canSubmit) onDone('verified'); }}
+            placeholder="Your answer…"
+            style={{width:'100%', fontSize:12, padding:'5px 8px', borderRadius:5,
+              border:'1px solid #A8C4F0', fontFamily:'inherit', outline:'none', boxSizing:'border-box'}}
+          />
+        </div>
+      ))}
+
+      {vType === 'text' && (
+        <div style={{marginBottom:8}}>
+          <div style={{fontSize:11.5, color:'#1A2535', marginBottom:3, lineHeight:1.4}}>{prompt}</div>
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={2}
+            placeholder="e.g. I practised the travel topic — key transport vocabulary + the subjunctive structure…"
+            style={{width:'100%', fontSize:12, padding:'5px 8px', borderRadius:5,
+              border:'1px solid #A8C4F0', fontFamily:'inherit', outline:'none',
+              resize:'vertical', boxSizing:'border-box'}}
+          />
+        </div>
+      )}
+
+      <div style={{display:'flex', gap:7, flexWrap:'wrap'}}>
+        <button
+          onClick={() => onDone('verified')}
+          disabled={!canSubmit}
+          style={{padding:'5px 14px', fontSize:12, fontWeight:700, borderRadius:5, border:'none',
+            background: canSubmit ? '#5BAD6F' : '#CCC', color:'white',
+            cursor: canSubmit ? 'pointer' : 'default', transition:'background 0.15s'}}
+        >✅ Submit &amp; Complete</button>
+        <button
+          onClick={() => onDone('unverified')}
+          style={{padding:'5px 12px', fontSize:12, fontWeight:600, borderRadius:5,
+            background:'#FFF8E0', color:'#8A6000', border:'1.5px solid #F0D060', cursor:'pointer'}}
+        >⚠️ Mark Unverified</button>
+        <button
+          onClick={() => onDone('cancel')}
+          style={{padding:'5px 8px', fontSize:11, color:'#AAA', background:'none', border:'none', cursor:'pointer'}}
+        >Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Day card ─────────────────────────────────────────────────────────── */
 function DayCard({ dateStr, day, editMode, override, onSave }) {
   const isToday = dateStr === TODAY;
@@ -1378,9 +1652,10 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
   const [open, setOpen] = useState(isToday || !isPast);
 
   // ── Merge hard-coded data with localStorage override ──────────────────
-  const status    = (override && override.status    != null) ? override.status    : day.status;
-  const completed = (override && override.completed != null) ? override.completed : (day.completed || []);
-  const noteBase  = (override && override.note      != null) ? override.note      : (day.note || '');
+  const status     = (override && override.status    != null) ? override.status    : day.status;
+  const completed  = (override && override.completed != null) ? override.completed : (day.completed || []);
+  const unverified = (override && override.unverified != null) ? override.unverified : [];
+  const noteBase   = (override && override.note      != null) ? override.note      : (day.note || '');
   // plannedOverride replaces day.planned when the scheduler has rearranged sessions
   const plannedBase = (override && override.plannedOverride != null) ? override.plannedOverride : (day.planned || []);
   const planned     = [...plannedBase, ...((override && override.addedPlanned) || [])];
@@ -1388,6 +1663,7 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
   // ── Edit panel local state ────────────────────────────────────────────
   const [draftNote, setDraftNote] = useState(noteBase);
   const [newItem,   setNewItem]   = useState('');
+  const [verifying, setVerifying] = useState(null);   // item text currently showing verify panel
   const noteRef = useRef(null);
 
   // Sync draftNote if override changes externally
@@ -1396,22 +1672,73 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
   // ── Save helpers ──────────────────────────────────────────────────────
   function setStatus(s) {
     const base = override || {};
-    let comp = completed;
-    if (s === 'done')     comp = planned.slice();
-    if (s === 'upcoming') comp = [];
-    onSave({ ...base, status: s, completed: comp });
+    let comp   = completed;
+    let unver  = unverified;
+    if (s === 'done')     { comp = planned.slice(); unver = []; }
+    if (s === 'upcoming') { comp = [];              unver = []; }
+    onSave({ ...base, status: s, completed: comp, unverified: unver });
   }
 
   function toggleItem(item) {
-    const cur = new Set(completed);
-    if (cur.has(item)) cur.delete(item); else cur.add(item);
-    const newComp = [...cur];
-    const base = override || {};
-    let newStatus = status;
-    if (newComp.length === 0)           newStatus = 'upcoming';
-    else if (newComp.length >= planned.length) newStatus = 'done';
-    else                                newStatus = 'partial';
-    onSave({ ...base, completed: newComp, status: newStatus });
+    const curComp  = new Set(completed);
+    const curUnver = new Set(unverified);
+
+    // Un-tick a verified item
+    if (curComp.has(item)) {
+      curComp.delete(item);
+      const newComp  = [...curComp];
+      const allDone  = newComp.length + curUnver.size;
+      const newStatus = allDone === 0 ? 'upcoming' : allDone >= planned.length && curUnver.size === 0 ? 'done' : 'partial';
+      onSave({ ...(override || {}), completed: newComp, status: newStatus });
+      return;
+    }
+    // Un-tick an unverified item
+    if (curUnver.has(item)) {
+      curUnver.delete(item);
+      const newUnver = [...curUnver];
+      const allDone  = curComp.size + newUnver.length;
+      const newStatus = allDone === 0 ? 'upcoming' : 'partial';
+      onSave({ ...(override || {}), unverified: newUnver, status: newStatus });
+      return;
+    }
+    // Marking a new item complete — check if it needs verification
+    const { label } = parseItem(item);
+    if (getVerifyType(label) === 'none') {
+      // Auto-complete (breaks, tuition markers, etc.)
+      curComp.add(item);
+      const newComp  = [...curComp];
+      const allDone  = newComp.length + curUnver.size;
+      const newStatus = allDone >= planned.length && curUnver.size === 0 ? 'done' : allDone > 0 ? 'partial' : 'upcoming';
+      onSave({ ...(override || {}), completed: newComp, status: newStatus });
+    } else {
+      // Open the verification panel
+      setVerifying(item);
+    }
+  }
+
+  function completeVerification(mode) {
+    const item = verifying;
+    setVerifying(null);
+    if (mode === 'cancel' || !item) return;
+
+    const curComp  = new Set(completed);
+    const curUnver = new Set(unverified);
+
+    if (mode === 'verified') {
+      curComp.add(item);
+      curUnver.delete(item);
+    } else {
+      curUnver.add(item);
+      curComp.delete(item);
+    }
+
+    const newComp  = [...curComp];
+    const newUnver = [...curUnver];
+    const allDone  = newComp.length + newUnver.length;
+    const newStatus = allDone === 0 ? 'upcoming'
+      : allDone >= planned.length && newUnver.length === 0 ? 'done'
+      : 'partial';
+    onSave({ ...(override || {}), completed: newComp, unverified: newUnver, status: newStatus });
   }
 
   function saveNote() {
@@ -1438,7 +1765,7 @@ function DayCard({ dateStr, day, editMode, override, onSave }) {
   // ── Derived display values ────────────────────────────────────────────
   const timeline   = buildTimeline(day.dayOfWeek, planned, day.tuitionOverride);
   const studyItems = timeline.filter(i => !i.isTuition && i.startMin !== -1);
-  const doneCount  = completed.length;
+  const doneCount  = completed.length + unverified.length;
   const total      = studyItems.length;
   const pct        = total > 0 ? Math.round(doneCount / total * 100) : 0;
 
@@ -1782,7 +2109,9 @@ function AddTaskPanel({ overrides, onScheduled }) {
       const { label } = parseItem(conflict);
       const rm = conflict.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
       const dur = rm ? toMin(rm[2]) - toMin(rm[1]) : 60;
-      const res = smartSchedule(working, label, dur, null);
+      // Use exam-aware deadline so French revision never lands after the French exam, etc.
+      const autoDeadline = inferDeadline(label);
+      const res = smartSchedule(working, label, dur, autoDeadline);
       if (res) {
         for (const [ds, patch] of Object.entries(res.patches)) {
           working = { ...working, [ds]: patch };
@@ -1935,7 +2264,11 @@ function AddTaskPanel({ overrides, onScheduled }) {
             )}
             {result.failed && result.failed.length > 0 && (
               <div style={{marginTop:4, fontSize:11, color:'#E05C20', fontStyle:'italic'}}>
-                ⚠️ Couldn't reschedule: {result.failed.map(f => parseItem(f).label).join(', ')} — remove or move manually
+                ⚠️ No room before their exam deadline for: {result.failed.map(f => {
+                  const lbl = parseItem(f).label;
+                  const dl = inferDeadline(lbl);
+                  return `${lbl} (by ${fmtShort(dl)})`;
+                }).join(', ')} — logged as make-up needed
               </div>
             )}
           </div>
