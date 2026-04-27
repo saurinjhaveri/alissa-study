@@ -985,92 +985,134 @@ function sortedUpcoming(deadline) {
     .sort(([a],[b]) => a.localeCompare(b));
 }
 
-// The full planned list for a day, accounting for any plannedOverride
+// The full planned list for a day, accounting for any plannedOverride — always sorted by start time
 function effectivePlanned(day, ov) {
   const base = (ov && ov.plannedOverride != null) ? ov.plannedOverride : (day.planned || []);
-  return [...base, ...((ov && ov.addedPlanned) || [])];
+  const combined = [...base, ...((ov && ov.addedPlanned) || [])];
+  return combined.sort((a, b) => {
+    const t = s => { const m = s.match(/^(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : 9999; };
+    return t(a) - t(b);
+  });
 }
 
-// Strategy 1: find a natural gap of exactly durationMins in any free window
+// ── Dynamic free-window helpers ────────────────────────────────────────
+// Merge overlapping/adjacent intervals [{s,e}] into a sorted non-overlapping list
+function mergeIntervals(intervals) {
+  if (!intervals.length) return [];
+  const sorted = [...intervals].sort((a, b) => a.s - b.s);
+  const out = [{ ...sorted[0] }];
+  for (let i = 1; i < sorted.length; i++) {
+    const last = out[out.length - 1];
+    if (sorted[i].s <= last.e) last.e = Math.max(last.e, sorted[i].e);
+    else out.push({ ...sorted[i] });
+  }
+  return out;
+}
+
+// Fixed (non-study) blocks for a day: school hours + tuition/travel/meals
+function getFixedBlocks(day) {
+  const SCHOOL_START = 7 * 60 + 30;   // 7:30 am
+  const SCHOOL_END   = 16 * 60;        // 4:00 pm (Alissa's school hours)
+  const blocks = [];
+
+  const isWeekday    = ['Monday','Tuesday','Wednesday','Thursday','Friday'].includes(day.dayOfWeek);
+  const noteL        = (day.note || '').toLowerCase();
+  const isSchoolFree = noteL.includes('study leave') || noteL.includes('no school')
+                    || noteL.includes('holiday') || noteL.includes('public holiday');
+  if (isWeekday && !isSchoolFree) blocks.push({ s: SCHOOL_START, e: SCHOOL_END });
+
+  const tuition = day.tuitionOverride || TUITION_SCHEDULE[day.dayOfWeek] || [];
+  for (const b of tuition) {
+    if (b.start && b.end) blocks.push({ s: toMin(b.start), e: toMin(b.end) });
+  }
+  return mergeIntervals(blocks);
+}
+
+// Free gaps between fixed blocks only (no planned sessions subtracted).
+// These are the "containers" that study sessions live in.
+function getFixedGaps(day) {
+  const EARLIEST = 9 * 60;      // never schedule study before 9 am
+  const LATEST   = 22 * 60 + 30;
+  const MIN_GAP  = 15;
+  const gaps = [];
+  let cursor = EARLIEST;
+  for (const blk of getFixedBlocks(day)) {
+    if (blk.s > cursor && blk.s - cursor >= MIN_GAP)
+      gaps.push({ startMin: cursor, endMin: blk.s });
+    cursor = Math.max(cursor, blk.e);
+  }
+  if (LATEST > cursor && LATEST - cursor >= MIN_GAP)
+    gaps.push({ startMin: cursor, endMin: LATEST });
+  return gaps;
+}
+
+// Truly free gaps: fixed blocks + ALL planned sessions subtracted.
+// Used by tryNaturalFit / findSlotInDay to find genuinely open time.
+function getStudyWindows(day, ov) {
+  const EARLIEST = 9 * 60;
+  const LATEST   = 22 * 60 + 30;
+  const MIN_GAP  = 15;
+  const blocked  = [...getFixedBlocks(day)];
+
+  for (const p of effectivePlanned(day, ov)) {
+    const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
+    if (rm) blocked.push({ s: toMin(rm[1]), e: toMin(rm[2]) });
+  }
+
+  const gaps = [];
+  let cursor = EARLIEST;
+  for (const blk of mergeIntervals(blocked)) {
+    if (blk.s > cursor && blk.s - cursor >= MIN_GAP)
+      gaps.push({ startMin: cursor, endMin: blk.s });
+    cursor = Math.max(cursor, blk.e);
+  }
+  if (LATEST > cursor && LATEST - cursor >= MIN_GAP)
+    gaps.push({ startMin: cursor, endMin: LATEST });
+  return gaps;
+}
+
+// Strategy 1: find the first genuinely free gap of durationMins
 function tryNaturalFit(overrides, durationMins, deadline) {
   for (const [ds, day] of sortedUpcoming(deadline)) {
     const ov = overrides[ds] || {};
     if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
-    if (!day.freeWindows || !day.freeWindows.length) continue;
-
-    const planned = effectivePlanned(day, ov);
-    const usedSlots = [];
-    for (const p of planned) {
-      const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
-      if (rm) usedSlots.push({ s: toMin(rm[1]), e: toMin(rm[2]) });
-    }
-    const tuitionBlocks = day.tuitionOverride || TUITION_SCHEDULE[day.dayOfWeek] || [];
-    for (const b of tuitionBlocks) {
-      if (b.start && b.end) usedSlots.push({ s: toMin(b.start), e: toMin(b.end) });
-    }
-    usedSlots.sort((a, b) => a.s - b.s);
-
-    for (const fw of day.freeWindows) {
-      const win = parseFreeWindow(fw);
-      if (!win || win.endMin - win.startMin < durationMins) continue;
-      let cursor = win.startMin, placed = null;
-      const rel = usedSlots.filter(u => u.s < win.endMin && u.e > win.startMin);
-      for (const slot of rel) {
-        if (slot.s - cursor >= durationMins) { placed = cursor; break; }
-        cursor = Math.max(cursor, slot.e);
-      }
-      if (placed === null && win.endMin - cursor >= durationMins) placed = cursor;
-      if (placed !== null) return { ds, startMin: placed };
+    for (const gap of getStudyWindows(day, ov)) {
+      if (gap.endMin - gap.startMin >= durationMins) return { ds, startMin: gap.startMin };
     }
   }
   return null;
 }
 
-// Strategy 2: compact-pack existing items in a window to squeeze new task in
+// Strategy 2: compact-pack existing sessions in a container to squeeze new task in
 function tryCompactPack(overrides, taskText, durationMins, deadline) {
   for (const [ds, day] of sortedUpcoming(deadline)) {
     const ov = overrides[ds] || {};
     if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
-    if (!day.freeWindows || !day.freeWindows.length) continue;
-
     const allPlanned = effectivePlanned(day, ov);
 
-    for (const fw of day.freeWindows) {
-      const win = parseFreeWindow(fw);
-      if (!win) continue;
-      const winDur = win.endMin - win.startMin;
-
-      // Split planned items into those inside this window vs outside
+    for (const fg of getFixedGaps(day)) {
+      const winDur = fg.endMin - fg.startMin;
       const inWin = [], outside = [];
       for (const p of allPlanned) {
         const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
         if (!rm) { outside.push(p); continue; }
         const s = toMin(rm[1]), e = toMin(rm[2]);
-        if (s < win.endMin && e > win.startMin) {
-          inWin.push({ text: p, dur: Math.min(e, win.endMin) - Math.max(s, win.startMin) });
-        } else {
-          outside.push(p);
-        }
+        if (s < fg.endMin && e > fg.startMin)
+          inWin.push({ text: p, dur: Math.min(e, fg.endMin) - Math.max(s, fg.startMin) });
+        else outside.push(p);
       }
-
       const totalUsed = inWin.reduce((s, i) => s + i.dur, 0);
-      if (totalUsed + durationMins > winDur) continue; // Can't fit even tightly
+      if (totalUsed + durationMins > winDur) continue;
 
-      // Pack inWin items end-to-end from window start, append new task
-      let cursor = win.startMin;
+      let cursor = fg.startMin;
       const repacked = inWin.map(item => {
-        const retyped = item.text.replace(
-          /^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
-          `${fromMin(cursor)}–${fromMin(cursor + item.dur)}`
-        );
+        const out = item.text.replace(/^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
+          `${fromMin(cursor)}–${fromMin(cursor + item.dur)}`);
         cursor += item.dur;
-        return retyped;
+        return out;
       });
       const newStart = cursor, newEnd = cursor + durationMins;
-      const newItem = `${fromMin(newStart)}–${fromMin(newEnd)} — ${taskText}`;
-      repacked.push(newItem);
-
-      // Build the new full planned list for this day
+      repacked.push(`${fromMin(newStart)}–${fromMin(newEnd)} — ${taskText}`);
       const newPlanned = [...outside, ...repacked];
       const newOv = { ...ov, plannedOverride: newPlanned, addedPlanned: [] };
       return { ds, startMin: newStart, endMin: newEnd, newOv, rearranged: true };
@@ -1079,33 +1121,15 @@ function tryCompactPack(overrides, taskText, durationMins, deadline) {
   return null;
 }
 
-// Helper: find a natural slot of durationMins in a specific day (ignores deadline)
+// Helper: find a natural slot in a specific day using dynamic free windows
 function findSlotInDay(ds, day, ov, durationMins) {
-  if (!day.freeWindows) return null;
-  const planned = effectivePlanned(day, ov);
-  const used = [];
-  for (const p of planned) {
-    const rm = parseItem(p).time.match(/^(\d{1,2}:\d{2})[–\-](\d{1,2}:\d{2})/);
-    if (rm) used.push({ s: toMin(rm[1]), e: toMin(rm[2]) });
-  }
-  const tuition = day.tuitionOverride || TUITION_SCHEDULE[day.dayOfWeek] || [];
-  for (const b of tuition) { if (b.start && b.end) used.push({ s: toMin(b.start), e: toMin(b.end) }); }
-  used.sort((a, b) => a.s - b.s);
-  for (const fw of day.freeWindows) {
-    const win = parseFreeWindow(fw);
-    if (!win || win.endMin - win.startMin < durationMins) continue;
-    let cursor = win.startMin, placed = null;
-    for (const slot of used.filter(u => u.s < win.endMin && u.e > win.startMin)) {
-      if (slot.s - cursor >= durationMins) { placed = cursor; break; }
-      cursor = Math.max(cursor, slot.e);
-    }
-    if (placed === null && win.endMin - cursor >= durationMins) placed = cursor;
-    if (placed !== null) return placed;
+  for (const gap of getStudyWindows(day, ov)) {
+    if (gap.endMin - gap.startMin >= durationMins) return gap.startMin;
   }
   return null;
 }
 
-// Helper: split planned items into those inside a window vs outside
+// Helper: split planned items into those inside a container vs outside
 function splitByWindow(allPlanned, win) {
   const inWin = [], outside = [];
   for (const p of allPlanned) {
@@ -1133,28 +1157,24 @@ function packAndAppend(inWin, win, newTaskText, newDur) {
   return { repacked, newStart };
 }
 
-// Strategy 3: trim the longest existing session in a window to make room (≤ 30 min cut)
+// Strategy 3: trim the longest existing session to make room (≤ 30 min cut)
 function tryTrimExisting(overrides, taskText, durationMins, deadline) {
   for (const [ds, day] of sortedUpcoming(deadline)) {
     const ov = overrides[ds] || {};
     if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
-    if (!day.freeWindows || !day.freeWindows.length) continue;
     const allPlanned = effectivePlanned(day, ov);
-    for (const fw of day.freeWindows) {
-      const win = parseFreeWindow(fw);
-      if (!win) continue;
-      const { inWin, outside } = splitByWindow(allPlanned, win);
+    for (const fg of getFixedGaps(day)) {
+      const { inWin, outside } = splitByWindow(allPlanned, fg);
       const totalUsed = inWin.reduce((s, i) => s + i.dur, 0);
-      const deficit = totalUsed + durationMins - (win.endMin - win.startMin);
+      const deficit = totalUsed + durationMins - (fg.endMin - fg.startMin);
       if (deficit <= 0 || deficit > 30) continue;
-      // Find longest session that can absorb the cut without going below 15 min
       const trimTarget = [...inWin].sort((a, b) => b.dur - a.dur)
         .find(i => i.dur - deficit >= 15);
       if (!trimTarget) continue;
       const trimmed = inWin.map(i =>
         i === trimTarget ? { ...i, dur: i.dur - deficit } : i
       ).sort((a, b) => a.s - b.s);
-      const { repacked, newStart } = packAndAppend(trimmed, win, taskText, durationMins);
+      const { repacked, newStart } = packAndAppend(trimmed, fg, taskText, durationMins);
       const newPlanned = [...outside, ...repacked];
       const itemText = repacked[repacked.length - 1];
       return { ds, itemText, method: 'trimmed',
@@ -1171,18 +1191,13 @@ function tryMoveExisting(overrides, taskText, durationMins, deadline) {
   for (const [ds, day] of sortedUpcoming(deadline)) {
     const ov = overrides[ds] || {};
     if ((ov.status || day.status) === 'done' || (ov.status || day.status) === 'missed') continue;
-    if (!day.freeWindows || !day.freeWindows.length) continue;
     const allPlanned = effectivePlanned(day, ov);
-    for (const fw of day.freeWindows) {
-      const win = parseFreeWindow(fw);
-      if (!win) continue;
-      const { inWin, outside } = splitByWindow(allPlanned, win);
-      // Try removing each existing session to see if new task fits
+    for (const fg of getFixedGaps(day)) {
+      const { inWin, outside } = splitByWindow(allPlanned, fg);
       for (const candidate of [...inWin].sort((a, b) => a.dur - b.dur)) {
         const remaining = inWin.filter(i => i !== candidate).sort((a, b) => a.s - b.s);
         const totalAfter = remaining.reduce((s, i) => s + i.dur, 0);
-        if (totalAfter + durationMins > win.endMin - win.startMin) continue;
-        // Find another day to absorb the moved session — respect its own exam deadline
+        if (totalAfter + durationMins > fg.endMin - fg.startMin) continue;
         const candidateDeadline = inferDeadline(candidate.text);
         const futureDays = allDays.filter(([fds]) => fds > ds && fds <= candidateDeadline);
         let moveTarget = null;
@@ -1193,11 +1208,9 @@ function tryMoveExisting(overrides, taskText, durationMins, deadline) {
           if (slot !== null) { moveTarget = { fds, fday, fov, slot }; break; }
         }
         if (!moveTarget) continue;
-        // Build new planned for current day
-        const { repacked, newStart } = packAndAppend(remaining, win, taskText, durationMins);
+        const { repacked, newStart } = packAndAppend(remaining, fg, taskText, durationMins);
         const newPlanned = [...outside, ...repacked];
         const itemText = repacked[repacked.length - 1];
-        // Build patch for future day
         const movedText = candidate.text.replace(/^\d{1,2}:\d{2}[–\-]\d{1,2}:\d{2}/,
           `${fromMin(moveTarget.slot)}–${fromMin(moveTarget.slot + candidate.dur)}`);
         const { fds, fov } = moveTarget;
